@@ -12,7 +12,6 @@
     "lerna": "^4.0.0"
   },
   "publishConfig": {
-    "registry": "https://gitee.com/haha58/haha-cli-dev.git",
     "access": "public"
   }
 }
