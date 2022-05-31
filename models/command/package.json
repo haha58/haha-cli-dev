@@ -1,6 +1,6 @@
 {
-  "name": "command",
-  "version": "1.0.3",
+  "name": "@haha-cli-dev/command",
+  "version": "1.0.4",
   "description": "> TODO: description",
   "author": "haha58 <9312877+haha58@user.noreply.gitee.com>",
   "homepage": "",
@@ -13,6 +13,9 @@
   "files": [
     "lib"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "https://gitee.com/haha58/haha-cli-dev.git"
