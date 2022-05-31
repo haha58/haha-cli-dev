@@ -1,6 +1,6 @@
 {
   "name": "@haha-cli-dev/init",
-  "version": "1.0.2",
+  "version": "2.0.3",
   "description": "> TODO: description",
   "author": "haha58 <9312877+haha58@user.noreply.gitee.com>",
   "homepage": "",
@@ -22,5 +22,12 @@
   },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "@haha-cli-dev/command": "file:../../models/command",
+    "inquirer": "^8.2.4"
+  },
+  "devDependencies": {
+    "fs-extra": "^10.1.0"
   }
 }

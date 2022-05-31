@@ -1,5 +1,5 @@
 {
-  "name": "@haha-cli-dev/packages",
+  "name": "format-path",
   "version": "1.0.2",
   "description": "> TODO: description",
   "author": "haha58 <9312877+haha58@user.noreply.gitee.com>",
@@ -13,25 +13,11 @@
   "files": [
     "lib"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "https://gitee.com/haha58/haha-cli-dev.git"
   },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
-  },
-  "dependencies": {
-    "npminstall": "^6.2.0"
-  },
-  "devDependencies": {
-    "@haha-cli-dev/format-path": "file:../../utils/format-path",
-    "@haha-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
-    "@haha-cli-dev/utils": "file:../../utils/utils",
-    "fs-extra": "^10.1.0",
-    "path-exists": "4.0.0",
-    "pkg-dir": "5.0.0"
   }
 }

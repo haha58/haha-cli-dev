@@ -23,7 +23,7 @@ function getNpmInfo(npmName, register) {
 
 //得到镜像地址
 function getRegister(isOrigin = false) {
-  return isOrigin ? 'https://registry.npmjs.org/' : 'https://registry.npmmirror.com/'
+  return isOrigin ? 'https://registry.npmjs.org/' : 'https://registry.npm.taobao.org/'
 }
 
 //获取所有的版本号
@@ -47,7 +47,12 @@ function getNpmSemverVersions(baseVersion, versions) {
 //获取最新的版本号
 async function getNpmLastVersion(baseVersion, npmName, register) {
   const versions = await getNpmVersions(npmName)
+  if (baseVersion === 'lastest') {
+    baseVersion = versions[0]
+  }
+
   const newVersions = getNpmSemverVersions(baseVersion, versions)
+
   if (newVersions && newVersions.length > 0) {
     return newVersions[0]
   }

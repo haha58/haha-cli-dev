@@ -1,6 +1,6 @@
 {
   "name": "@haha-cli-dev/exec",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "> TODO: description",
   "author": "haha58 <9312877+haha58@user.noreply.gitee.com>",
   "homepage": "",
@@ -25,9 +25,10 @@
   },
   "dependencies": {
     "@haha-cli-dev/log": "file:../../utils/log",
-    "@haha-cli-dev/packages": "file:../../models/packages"
+    "@haha-cli-dev/packages": "file:../../models/packages",
+    "child_process": "^1.0.2"
   },
   "devDependencies": {
-
+    "path-exists": "4.0.0"
   }
 }

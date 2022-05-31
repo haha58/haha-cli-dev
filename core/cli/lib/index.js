@@ -1,21 +1,19 @@
 'use strict'
 
 //外部引入的包放最外面，内部引入的包放里面
-const semver = require('semver')
-const colors = require('colors')
+
 const path = require('path')
 const userHome = require('user-home')
 const pathExists = require('path-exists')
 const { program } = require('commander')
+const semver = require('semver')
+const colors = require('colors')
 
 const log = require('@haha-cli-dev/log')
-const init = require('@haha-cli-dev/init')
 const exec = require('@haha-cli-dev/exec')
 
 const pkg = require('../package.json')
 const constant = require('./const')
-
-let argv
 
 function core() {
   try {
@@ -23,12 +21,14 @@ function core() {
     registerCommander()
   } catch (e) {
     console.log(e.message)
+    if (process.env.LOG_LEVEL === 'verbose') {
+      console.log(e)
+    }
   }
 }
 
 function prepare() {
   checkPkgVersion()
-  checkNodeVersion()
   checkRoot()
   checkUserHome()
   checkEnv()
@@ -37,14 +37,6 @@ function prepare() {
 
 function checkPkgVersion() {
   log.success('当前版本:', pkg.version)
-}
-
-//检查node版本
-function checkNodeVersion() {
-  const currentVersion = process.version
-  if (!semver.gte(currentVersion, constant.LOWEST_NODE_VERSION)) {
-    throw new Error(colors.red('错误:node版本过低'))
-  }
 }
 
 //检查是否是root用户
@@ -80,12 +72,12 @@ function createDefaultConfig() {
   const cliConfig = {
     home: userHome
   }
-  if (process.env.CLI_HOME) {
-    cliConfig['cliHome'] = path.join(userHome, process.env.CLI_HOME)
+  if (process.env.CLI_HOME_PATH) {
+    cliConfig['cliHome'] = path.join(userHome, process.env.CLI_HOME_PATH)
   } else {
     cliConfig['cliHome'] = path.join(userHome, constant.DEFAULT_CLI_HOME)
   }
-  process.env.CLI_HOME = cliConfig.cliHome
+  process.env.CLI_HOME_PATH = cliConfig.cliHome
 }
 
 /**

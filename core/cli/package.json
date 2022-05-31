@@ -1,6 +1,6 @@
 {
   "name": "@haha-cli-dev/core",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "> TODO: description",
   "author": "haha58 <1461089222@qq.com>",
   "homepage": "",
@@ -22,7 +22,6 @@
   "dependencies": {
     "@haha-cli-dev/get-npm-info": "file:../../utils/get-npm-info",
     "@haha-cli-dev/log": "file:../../utils/log",
-    "@haha-cli-dev/init": "file:../../commands/init",
     "@haha-cli-dev/exec": "file:../exec"
   },
   "publishConfig": {
