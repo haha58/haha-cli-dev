@@ -87,7 +87,18 @@ class initCommand extends Command {
           name: 'project',
           default: 'haha-demo',
           validate: val => {
-            return typeof val === 'string'
+            const done = this.async()
+            setTimeout(function () {
+              //1、必须首字母大写，
+              //2、尾字符必须为英文或者数字，不能为字符
+              //3、字符仅允许'-_'
+              //类型合法有：a a-b a_b a-b-c a_b_c a1_b1_c1 a1 a1-b1-c1
+              if (!/^[A-Za-z]+([-][a-zA-Z][a-zA-Z0-9]*|[_][a-zA-Z][a-zA-Z0-9]*|[A-Za-z0-9])*$/.test(val)) {
+                done('请输入合法的项目名称')
+                return
+              }
+              done(null, true)
+            }, 0)
           }
         },
         {
