@@ -28,6 +28,7 @@
     "@haha-cli-dev/log": "file:../../utils/log",
     "@haha-cli-dev/packages": "file:../../models/packages",
     "@haha-cli-dev/utils": "file:../../utils/utils",
+    "@haha-cli-dev/request": "file:../../utils/request",
     "inquirer": "^8.2.4"
   },
   "devDependencies": {
