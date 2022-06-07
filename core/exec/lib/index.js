@@ -34,10 +34,10 @@ async function exec(...argv) {
     })
     if (await pkg.exists()) {
       //更新
-      pkg.update()
+      await pkg.update()
     } else {
       //初始化
-      pkg.install()
+      await pkg.install()
     }
   } else {
     pkg = new packages({

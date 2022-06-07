@@ -42,7 +42,7 @@ class Packages {
   async prepare() {
     if (this.storeDir && !(await pathExists(this.storeDir))) {
       //确保文件夹存在，不存在就创建它
-      fsExtra.ensureDirSync(this.storeDir)
+      await fsExtra.ensureDirSync(this.storeDir)
     }
     // if (this.packageVersion === 'latest') {
     this.packageVersion = await getNpmLastVersion(this.packageVersion, this.packageName, true)
