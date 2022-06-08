@@ -75,11 +75,12 @@ class initCommand extends Command {
       const targetPath = process.cwd()
       fse.ensureDirSync(templatePath)
       fse.ensureDirSync(targetPath)
-      fs.copySync(templatePath, targetPath)
+      fse.copySync(templatePath, targetPath)
     } catch (error) {
       throw error
     } finally {
       spinner.stop(true)
+      log.success('模板安装成功')
     }
   }
 
