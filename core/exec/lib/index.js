@@ -1,10 +1,10 @@
 'use strict'
 
 const path = require('path')
-const childProcess = require('child_process')
 
 const packages = require('@haha-cli-dev/packages')
 const log = require('@haha-cli-dev/log')
+const { execAysnc } = require('@haha-cli-dev/utils')
 
 const SETTINGS = {
   init: '@haha-cli-dev/init'
@@ -64,31 +64,23 @@ async function exec(...argv) {
         //code是字符串 ！！！ require(路径（字符串）)(参数（字符串）)
         const code = `require('${rootFile}')(${JSON.stringify(argv)})`
         //在 node 子进程中调用 提高速度
-        const cp = spawn('node', ['-e', code], {
+        const ret = await execAysnc('node', ['-e', code], {
           cwd: process.cwd(), //cwd 子进程的当前工作目录
           stdio: 'inherit' //inherit  将相应的stdio传给父进程或者从父进程传入，相当于process.stdin,process.stout和process.stderr
         })
-        cp.on('error', function (error) {
-          console.log(error.message)
+        if (ret !== 0) {
           process.exit(1)
-        })
-        cp.on('exit', e => {
-          log.verbose('命令执行成功', e)
-          process.exit(e)
-        })
+        } else {
+          log.verbose('命令执行成功', ret)
+          process.exit(ret)
+        }
       } catch (error) {
-        console.log(error.message)
+        throw error
       }
     } catch (error) {
-      console.log(error.message)
+      console.log(error)
+      log.verbose(error.message)
     }
-  }
-
-  function spawn(command, args, options = {}) {
-    const win32 = process.platform === 'win32'
-    const cmd = win32 ? 'cmd' : command
-    const cmdArgs = win32 ? ['/c'].concat(command, args) : args
-    return childProcess.spawn(cmd, cmdArgs, options)
   }
 }
 

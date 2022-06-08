@@ -9,7 +9,7 @@ const semver = require('semver')
 const Command = require('@haha-cli-dev/command')
 const log = require('@haha-cli-dev/log')
 const packages = require('@haha-cli-dev/packages')
-const { spinnerStart } = require('@haha-cli-dev/utils')
+const { spinnerStart, execAysnc } = require('@haha-cli-dev/utils')
 
 const { getTemplate } = require('./template')
 
@@ -19,6 +19,9 @@ const templateTypes = {
   TEMPLATE_TYPE_NORMAL: 'normal',
   TEMPLATE_TYPE_CUSTOM: 'custom'
 }
+
+//白名单
+const WHITE_COMMAND = ['npm', 'cnpm', 'yarn']
 
 class initCommand extends Command {
   init() {
@@ -46,7 +49,6 @@ class initCommand extends Command {
   }
 
   async installTemplate() {
-    console.log(this.template, this.template.npmType)
     if (this.template) {
       if (!this.template.npmType) {
         this.template.npmType = templateTypes.TEMPLATE_TYPE_NORMAL
@@ -81,6 +83,36 @@ class initCommand extends Command {
     } finally {
       spinner.stop(true)
       log.success('模板安装成功')
+    }
+    await this.execCommand(this.template.installCommand, '依赖安装')
+    await this.execCommand(this.template.startCommand, '项目启动')
+  }
+
+  //白名单检测
+  checkWhiteCommand(cmd) {
+    if (WHITE_COMMAND.includes(cmd)) {
+      return cmd
+    }
+    return null
+  }
+
+  //安装命令
+  async execCommand(cmd, message) {
+    if (cmd) {
+      const tempCmd = cmd.split(' ')
+      const mainCmd = this.checkWhiteCommand(tempCmd[0])
+      if (!mainCmd) throw new Error('命令不存在')
+      const args = tempCmd.slice(1)
+      console.log('cwd', path.resolve(process.cwd(), this.template.npmName))
+      const installRet = await execAysnc(mainCmd, args, {
+        cwd: process.cwd(), //cwd 子进程的当前工作目录
+        stdio: 'inherit' //inherit  将相应的stdio传给父进程或者从父进程传入，相当于process.stdin,process.stout和process.stderr
+      })
+      if (installRet === 0) {
+        log.success(message + '成功')
+      } else {
+        throw new Error(message + '失败')
+      }
     }
   }
 
@@ -214,7 +246,7 @@ class initCommand extends Command {
           type: 'input',
           message: '请输入项目名称',
           name: 'project',
-          default: 'haha-demo',
+          default: 'HahaDemo',
           validate: function (val) {
             //检查项目名称和版本号的合法性
             const done = this.async()
@@ -229,6 +261,9 @@ class initCommand extends Command {
               }
               done(null, true)
             }, 0)
+          },
+          filter: val => {
+            return require('kebab-case')(val).replace(/^-/, '')
           }
         },
         {
@@ -262,6 +297,7 @@ class initCommand extends Command {
         name: 'npmName',
         choices: this.createTemplateChoice()
       })
+
       //4、获取项目的基本信息
       return {
         type,
