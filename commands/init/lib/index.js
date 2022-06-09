@@ -20,15 +20,13 @@ const templateTypes = {
   TEMPLATE_TYPE_CUSTOM: 'custom'
 }
 
-// let dir = path.resolve(process.cwd(), 'vue-test2')
-let dir = path.resolve(process.cwd(), 'lego-components')
-// let dir = process.cwd()
+let targetPath
 //白名单
 const WHITE_COMMAND = ['npm', 'cnpm', 'yarn']
 
 class initCommand extends Command {
   init() {
-    this.projectName = this._argv[0]
+    this.projectName = this._argv[0] || ''
   }
 
   /*
@@ -77,14 +75,16 @@ class initCommand extends Command {
 
   //标准安装
   async installNormalTemplate() {
-    const spinner = spinnerStart()
+    const spinner = spinnerStart('正在安装模板...')
     try {
       //拷贝模板代码到当前目录
       const templatePath = path.resolve(this.pkg.cacheFilePath, 'template')
-      const targetPath = process.cwd()
-      fse.ensureDirSync(templatePath)
+      const dirs = fs.readdirSync(templatePath)
+      const filePath = path.resolve(templatePath, dirs[0])
+      targetPath = path.resolve(process.cwd(), this.projectInfo.project)
+      fse.ensureDirSync(filePath)
       fse.ensureDirSync(targetPath)
-      fse.copySync(templatePath, targetPath)
+      fse.copySync(filePath, targetPath)
     } catch (error) {
       throw error
     } finally {
@@ -106,7 +106,7 @@ class initCommand extends Command {
         '**',
         {
           ignore,
-          cwd: dir,
+          cwd: targetPath,
           nodir: true
         },
         (err, files) => {
@@ -116,7 +116,7 @@ class initCommand extends Command {
           Promise.all(
             files.map(file => {
               //得到每一个文件的具体路径
-              const filePath = path.join(dir, file)
+              const filePath = path.join(targetPath, file)
               return new Promise((resolve1, reject1) => {
                 //解析文件
                 ejs.renderFile(filePath, this.projectInfo, {}, function (err, str) {
@@ -154,7 +154,7 @@ class initCommand extends Command {
       if (!mainCmd) throw new Error('命令不存在')
       const args = tempCmd.slice(1)
       const installRet = await execAysnc(mainCmd, args, {
-        cwd: dir, //cwd 子进程的当前工作目录
+        cwd: targetPath, //cwd 子进程的当前工作目录
         stdio: 'inherit' //inherit  将相应的stdio传给父进程或者从父进程传入，相当于process.stdin,process.stout和process.stderr
       })
       if (installRet === 0) {
@@ -344,7 +344,7 @@ class initCommand extends Command {
       const descriptPrompt = {
         type: 'input',
         message: `请输入${title}描述`,
-        name: 'descript',
+        name: 'description',
         validate: val => {
           if (!val) {
             return '组件描述不可以为空'
