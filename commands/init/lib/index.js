@@ -5,7 +5,7 @@ const path = require('path')
 const inquirer = require('inquirer')
 const fse = require('fs-extra')
 const semver = require('semver')
-
+const ejs = require('ejs')
 const Command = require('@haha-cli-dev/command')
 const log = require('@haha-cli-dev/log')
 const packages = require('@haha-cli-dev/packages')
@@ -20,6 +20,9 @@ const templateTypes = {
   TEMPLATE_TYPE_CUSTOM: 'custom'
 }
 
+// let dir = path.resolve(process.cwd(), 'vue-test2')
+let dir = path.resolve(process.cwd(), 'lego-components')
+// let dir = process.cwd()
 //白名单
 const WHITE_COMMAND = ['npm', 'cnpm', 'yarn']
 
@@ -38,13 +41,17 @@ class initCommand extends Command {
       //记得加上async，使同步运行，一个trycatch可以捕获方法内的错误
       //1、准备阶段
       this.projectInfo = await this.prepare()
+      console.log('this.projectInfo', this.projectInfo)
       if (!this.projectInfo) return false
       //2、下载模板
       await this.downloadTemplate()
       //3、安装模板
       await this.installTemplate()
     } catch (e) {
-      log.error(e.message)
+      log.error(e?.message)
+      if (process.env.LOG_LEVEL === 'verbose') {
+        console.log('e', e)
+      }
     }
   }
 
@@ -84,8 +91,51 @@ class initCommand extends Command {
       spinner.stop(true)
       log.success('模板安装成功')
     }
+    const ignore = ['**/node_modules/**', ...this.template?.ignore.split(',')]
+    await this.ejsRender(ignore)
+
     await this.execCommand(this.template.installCommand, '依赖安装')
     await this.execCommand(this.template.startCommand, '项目启动')
+  }
+
+  //ejs渲染=>将模板中的转成模板中package.json定义的版本
+  ejsRender(ignore) {
+    return new Promise((resolve, reject) => {
+      //得到文件夹下除去ignore的所有路径，
+      require('glob')(
+        '**',
+        {
+          ignore,
+          cwd: dir,
+          nodir: true
+        },
+        (err, files) => {
+          if (err) {
+            reject(err)
+          }
+          Promise.all(
+            files.map(file => {
+              //得到每一个文件的具体路径
+              const filePath = path.join(dir, file)
+              return new Promise((resolve1, reject1) => {
+                //解析文件
+                ejs.renderFile(filePath, this.projectInfo, {}, function (err, str) {
+                  if (err) {
+                    reject1(err)
+                  } else {
+                    //使用renderFile得到的str是字符串，需要转成文件
+                    fse.writeFileSync(filePath, str)
+                    resolve1(str)
+                  }
+                })
+              })
+            })
+          )
+            .then(() => resolve(files))
+            .catch(err => reject(err))
+        }
+      )
+    })
   }
 
   //白名单检测
@@ -103,9 +153,8 @@ class initCommand extends Command {
       const mainCmd = this.checkWhiteCommand(tempCmd[0])
       if (!mainCmd) throw new Error('命令不存在')
       const args = tempCmd.slice(1)
-      console.log('cwd', path.resolve(process.cwd(), this.template.npmName))
       const installRet = await execAysnc(mainCmd, args, {
-        cwd: process.cwd(), //cwd 子进程的当前工作目录
+        cwd: dir, //cwd 子进程的当前工作目录
         stdio: 'inherit' //inherit  将相应的stdio传给父进程或者从父进程传入，相当于process.stdin,process.stout和process.stderr
       })
       if (installRet === 0) {
@@ -222,6 +271,10 @@ class initCommand extends Command {
 
   //3、选择创建项目或组件
   async getBaseInfo() {
+    let info = {}
+    function isNamevalid(val) {
+      return /^[a-zA-Z]+([-][a-zA-Z0-9]|[_][a-zA-Z0-9]|[a-zA-Z0-9])*$/.test(val)
+    }
     const { type } = await inquirer.prompt({
       type: 'list',
       message: '请选择初始化类型',
@@ -238,81 +291,89 @@ class initCommand extends Command {
         }
       ]
     })
-    if (type === TYPE_COMPONENT) {
-    }
-    if (type === TYPE_PROJECT) {
-      const { project, version } = await inquirer.prompt([
-        {
-          type: 'input',
-          message: '请输入项目名称',
-          name: 'project',
-          default: 'HahaDemo',
-          validate: function (val) {
-            //检查项目名称和版本号的合法性
-            const done = this.async()
-            setTimeout(function () {
-              //1、必须首字母大写，
-              //2、尾字符必须为英文或者数字，不能为字符
-              //3、字符仅允许'-_'
-              //类型合法有：a a-b a_b a-b-c a_b_c a1_b1_c1 a1 a1-b1-c1
-              if (!/^[a-zA-Z]+([-][a-zA-Z0-9]|[_][a-zA-Z0-9]|[a-zA-Z0-9])*$/.test(val)) {
-                done('请输入合法的项目名称(要求英文字母开头,数字或字母结尾,字符只允许使用 - 以及 _)')
-                return
-              }
-              done(null, true)
-            }, 0)
-          },
-          filter: val => {
-            return require('kebab-case')(val).replace(/^-/, '')
+    const title = TYPE_PROJECT === type ? '项目' : '组件'
+    const promptArr = [
+      {
+        type: 'input',
+        message: `请输入${title}版本号`,
+        name: 'version',
+        default: '1.0.0',
+        validate: val => !!semver.valid(val) || '请输入合法的版本号',
+        filter: val => {
+          if (!!semver.valid(val)) {
+            return semver.valid(val)
           }
-        },
-        {
-          type: 'input',
-          message: '请输入项目版本号',
-          name: 'version',
-          default: '1.0.0',
-          validate: function (val) {
-            const done = this.async()
-            setTimeout(function () {
-              //!!semver.valid(val) !!转成Boolean类型
-              if (!!!semver.valid(val)) {
-                done('请输入合法的版本号')
-                return
-              }
-              done(null, true)
-            }, 0)
-          },
-          filter: val => {
-            if (!!semver.valid(val)) {
-              return semver.valid(val)
-            }
-            return val
-          }
+          return val
         }
-      ])
-      //添加选择模板交互
-      const { npmName } = await inquirer.prompt({
+      },
+      {
         type: 'list',
-        message: '请选择项目模板',
+        message: `请选择${title}模板`,
         name: 'npmName',
-        choices: this.createTemplateChoice()
-      })
-
-      //4、获取项目的基本信息
-      return {
-        type,
-        project,
-        version,
-        npmName
+        choices: this.createTemplateChoice(type)
       }
+    ]
+    const projectPromt = {
+      type: 'input',
+      message: `请输入${title}名称`,
+      name: 'project',
+      default: 'HahaDemo',
+      validate: function (val) {
+        //检查项目名称和版本号的合法性
+        const done = this.async()
+        setTimeout(function () {
+          //1、必须首字母大写，
+          //2、尾字符必须为英文或者数字，不能为字符
+          //3、字符仅允许'-_'
+          //类型合法有：a a-b a_b a-b-c a_b_c a1_b1_c1 a1 a1-b1-c1
+          if (!isNamevalid(val)) {
+            done(`请输入合法的${title}名称(要求英文字母开头,数字或字母结尾,字符只允许使用 - 以及 _)`)
+            return
+          }
+          done(null, true)
+        }, 0)
+      }
+    }
+    //命令行输入的projectName是否合法，不合法则重新填入项目名称
+    if (!isNamevalid(this.projectName)) {
+      promptArr.unshift(projectPromt)
+    } else {
+      info.project = this.projectName
+    }
+    if (type === TYPE_COMPONENT) {
+      const descriptPrompt = {
+        type: 'input',
+        message: `请输入${title}描述`,
+        name: 'descript',
+        validate: val => {
+          if (!val) {
+            return '组件描述不可以为空'
+          }
+          return true
+        }
+      }
+      promptArr.push(descriptPrompt)
+    }
+    const result = await inquirer.prompt(promptArr)
+    if (result?.project) {
+      info.project = result?.project
+    }
+    //4、获取项目的基本信息
+    return {
+      type,
+      ...result,
+      ...info,
+      className: require('kebab-case')(info.project).replace(/^-/, '')
     }
   }
 
-  createTemplateChoice() {
-    return this.templates?.map(item => ({
-      name: item.name,
-      value: item.npmName
-    }))
+  createTemplateChoice(type) {
+    return this.templates
+      .filter(item => item.tag === type)
+      ?.map(item => ({
+        name: item.name,
+        value: item.npmName
+      }))
   }
 
   //判断当前路径是否不为空
