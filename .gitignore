@@ -3,6 +3,6 @@
 node_modules
 
 packages/**/node_modules
-packages/**/packages-lock.json
+**/packages-lock.json
 
 lerna-debug.log

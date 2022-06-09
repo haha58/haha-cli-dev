@@ -71,7 +71,25 @@ class initCommand extends Command {
   }
 
   //自定义安装
-  async installCustomTemplate() {}
+  async installCustomTemplate() {
+    if (await this.pkg.exists()) {
+      const rootFile = this.pkg.getRootFilePath()
+      if (fs.existsSync(rootFile)) {
+        const templatePath = path.resolve(this.pkg.cacheFilePath, 'template')
+        const options = { templatePath, projectInfo: this.projectInfo, template: this.template }
+        const code = `require('${rootFile}')(${JSON.stringify(options)})`
+        const ret = await execAysnc('node', ['-e', code], {
+          cwd: process.cwd(), //cwd 子进程的当前工作目录
+          stdio: 'inherit' //inherit  将相应的stdio传给父进程或者从父进程传入，相当于process.stdin,process.stout和process.stderr
+        })
+        if (ret === 0) {
+          log.success('命令执行成功')
+        } else {
+          throw new Error('命令执行成功失败')
+        }
+      }
+    }
+  }
 
   //标准安装
   async installNormalTemplate() {
