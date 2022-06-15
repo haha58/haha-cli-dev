@@ -7,24 +7,34 @@
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.3.tgz#555193ab2e3bb3b6adc3d551c9c030d9e860daf6"
   integrity sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==
 
-"@haha-cli-dev/command@file:../../models/command":
-  version "1.0.4"
+"@haha-cli-dev/command@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@haha-cli-dev/command/-/command-1.0.5.tgz#004124f6310e478d3e656e7be81244303dd30065"
+  integrity sha512-syazsLZ9UUtAFBb2Wn1S6YnY1q0TK8Q/6FVfAp4a6FPPAY77TVlUi2fIcHq3XyBNzHtSH7msjTwgYfDmuPLLzg==
   dependencies:
     semver "^7.3.7"
 
-"@haha-cli-dev/log@file:../../utils/log":
-  version "1.0.3"
+"@haha-cli-dev/log@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@haha-cli-dev/log/-/log-1.0.7.tgz#f2c543329373904ab9387ddb2617ca374cad0c80"
+  integrity sha512-cio7i1D++5PNn7ZpmJS/48Pt9YbP+8fKGq8m9VzxFV6j76pfM0PBT0tapqhI8hIaZNEhLWM78qVgTVkJRtfbjQ==
 
-"@haha-cli-dev/packages@file:../../models/packages":
-  version "1.0.3"
+"@haha-cli-dev/packages@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@haha-cli-dev/packages/-/packages-1.0.5.tgz#cfcd49c80a0ae41b3d8d994021aeca52e7339ea0"
+  integrity sha512-0/oZnQoBp7hnsqOnAxWi6cwBHNVVsM8FhzJ+Mao1dwA3tJGdOY3DRYenpZYmbjwIGcEwf7fZC/yomPvSHN4Spg==
   dependencies:
     npminstall "^6.2.0"
 
-"@haha-cli-dev/request@file:../../utils/request":
-  version "1.0.2"
+"@haha-cli-dev/request@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@haha-cli-dev/request/-/request-1.0.3.tgz#85e71e5e490f7c3c502d0aeb3ce6820d44aa7614"
+  integrity sha512-gsCb7u8hrnekbNvLn4qus1MlCOeWyrnMz0HMBlV7aoV+XBpeCkfguHnPVTBe4F7ILbjr5VgVtP/OKGF+hzVp8Q==
 
-"@haha-cli-dev/utils@file:../../utils/utils":
-  version "1.0.4"
+"@haha-cli-dev/utils@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@haha-cli-dev/utils/-/utils-1.0.5.tgz#f79016c486bd7b02d8659e766e5b79eee7da1ef8"
+  integrity sha512-8Q4CURIT6buqsjzzacp9czAQ6CNQ045vAYQ5CJvy7CUmoT5o5sqqors3ekMKx2tr0DDrbQqkpkAnfy7vIZEtcQ==
   dependencies:
     cli-spinner "^0.2.10"
 
