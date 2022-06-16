@@ -1,16 +1,16 @@
-'use strict'
+"use strict"
 
 //node内置的包要放在最外面
-const path = require('path')
-const pathExists = require('path-exists')
-const fsExtra = require('fs-extra')
-const fs = require('fs')
-const pkgDir = require('pkg-dir').sync
-const npminstall = require('npminstall')
+const path = require("path")
+const pathExists = require("path-exists")
+const fsExtra = require("fs-extra")
+const fs = require("fs")
+const pkgDir = require("pkg-dir").sync
+const npminstall = require("npminstall")
 
-const { isObject } = require('@haha-cli-dev/utils')
-const formatPath = require('@haha-cli-dev/format-path')
-const { getRegister, getNpmLastVersion } = require('@haha-cli-dev/get-npm-info')
+const { isObject } = require("@haha-cli-dev/utils")
+const formatPath = require("@haha-cli-dev/format-path")
+const { getRegister, getNpmLastVersion } = require("@haha-cli-dev/get-npm-info")
 
 //1、targetPath ->modulePath(通过targetPath 拿到实际的modulePath)
 //2、modulePath ->Package(npm模块) 将modulePath生成一个通用的package
@@ -21,10 +21,10 @@ const { getRegister, getNpmLastVersion } = require('@haha-cli-dev/get-npm-info')
 class Packages {
   constructor(options) {
     if (!options) {
-      throw new Error('Packages类参数不能为空')
+      throw new Error("Packages类参数不能为空")
     }
     if (!isObject(options)) {
-      throw new Error('Packages类参数必须是Object类型')
+      throw new Error("Packages类参数必须是Object类型")
     }
     // 获取 targetPath ,如果没有 则说明不是一个本地的package
     this.targetPath = options.targetPath
@@ -35,7 +35,7 @@ class Packages {
     //Packages version
     this.packageVersion = options.packageVersion
     //前缀
-    this.cacheFilePathPrefix = this.packageName.replace('/', '_')
+    this.cacheFilePathPrefix = this.packageName.replace("/", "_")
   }
 
   //准备工作
@@ -44,9 +44,9 @@ class Packages {
       //确保文件夹存在，不存在就创建它
       await fsExtra.ensureDirSync(this.storeDir)
     }
-    // if (this.packageVersion === 'latest') {
-    this.packageVersion = await getNpmLastVersion(this.packageVersion, this.packageName, true)
-    // }
+    if (this.packageVersion === "latest") {
+      this.packageVersion = await getNpmLastVersion(this.packageVersion, this.packageName, true)
+    }
   }
 
   //获取当前模块缓存路径
@@ -104,7 +104,7 @@ class Packages {
   getRootFilePath() {
     function _getRootFilePath(_path) {
       const rootDir = pkgDir(_path)
-      const pkgFile = require(path.resolve(rootDir, 'package.json'))
+      const pkgFile = require(path.resolve(rootDir, "package.json"))
       const lib = pkgFile && (pkgFile.lib || pkgFile.main)
       if (lib) {
         return formatPath(path.resolve(rootDir, lib))
