@@ -1,6 +1,6 @@
 {
   "name": "@haha-cli-dev/core",
-  "version": "1.0.9",
+  "version": "2.0.0",
   "description": "> TODO: description",
   "author": "haha58 <1461089222@qq.com>",
   "homepage": "",
@@ -20,7 +20,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "@haha-cli-dev/exec": "^1.0.6",
+    "@haha-cli-dev/exec": "^2.0.2",
     "@haha-cli-dev/get-npm-info": "^1.0.4",
     "@haha-cli-dev/log": "^1.0.7",
     "colors": "^1.4.0",
@@ -36,7 +36,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "devDependencies": {
-    
-  }
+  "devDependencies": {}
 }
