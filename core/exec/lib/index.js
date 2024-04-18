@@ -7,7 +7,8 @@ const log = require("@haha-cli-dev/log")
 const { execAysnc } = require("@haha-cli-dev/utils")
 
 const SETTINGS = {
-  init: "@haha-cli-dev/init"
+  init: "@haha-cli-dev/init",
+  publish:'@haha-cli-dev/publish'
 }
 
 const CACHE_DIR = "dependencies"

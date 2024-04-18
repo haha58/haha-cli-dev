@@ -113,6 +113,10 @@ function registerCommander() {
     .option('-f,--force', '是否强制初始化')
     .action(exec)
 
+  program
+    .command('publish')
+    .action(exec)
+
   //注册debug模式
   program //记得加上program 否则init 命令的name参数打印不对
     .on('option:debug', () => {
