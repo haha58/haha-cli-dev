@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "haha-cli-dev": "^2.0.4",
+    "haha-cli-dev": "2.0.5",
     "lerna": "^8.1.2"
   },
   "publishConfig": {

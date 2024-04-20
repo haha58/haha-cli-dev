@@ -26,8 +26,8 @@
   "dependencies": {
     "@haha-cli-dev/command": "^1.0.6",
     "@haha-cli-dev/log": "^1.0.7",
-    "@haha-cli-dev/packages": "^2.0.0",
-    "@haha-cli-dev/request": "^2.0.0",
+    "@haha-cli-dev/packages": "^2.0.4",
+    "@haha-cli-dev/request": "^2.0.9",
     "@haha-cli-dev/utils": "^1.0.5",
     "ejs": "^3.1.8",
     "glob": "^8.0.3",
