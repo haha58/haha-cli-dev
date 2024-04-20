@@ -1,6 +1,6 @@
 {
   "name": "@haha-cli-dev/packages",
-  "version": "2.0.4",
+  "version": "4.0.0",
   "description": "> TODO: description",
   "author": "haha58 <9312877+haha58@user.noreply.gitee.com>",
   "homepage": "",
@@ -25,9 +25,9 @@
   },
   "dependencies": {
     "npminstall": "6.2.0",
-    "@haha-cli-dev/format-path": "^1.0.4",
-    "@haha-cli-dev/get-npm-info": "^1.0.4",
-    "@haha-cli-dev/utils": "^1.0.5",
+    "@haha-cli-dev/format-path": "^4.0.0",
+    "@haha-cli-dev/get-npm-info": "^4.0.0",
+    "@haha-cli-dev/utils": "^4.0.0",
     "fs-extra": "^10.1.0",
     "path-exists": "4.0.0",
     "pkg-dir": "5.0.0"

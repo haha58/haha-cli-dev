@@ -1,6 +1,6 @@
 {
   "name": "@haha-cli-dev/exec",
-  "version": "2.0.2",
+  "version": "4.0.0",
   "description": "> TODO: description",
   "author": "haha58 <9312877+haha58@user.noreply.gitee.com>",
   "homepage": "",
@@ -24,8 +24,8 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "@haha-cli-dev/log": "^1.0.7",
-    "@haha-cli-dev/packages": "^2.0.4",
-    "@haha-cli-dev/utils": "^1.0.5"
+    "@haha-cli-dev/log": "^4.0.0",
+    "@haha-cli-dev/packages": "^4.0.0",
+    "@haha-cli-dev/utils": "^4.0.0"
   }
 }
