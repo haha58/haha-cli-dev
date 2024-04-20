@@ -23,7 +23,7 @@ function getNpmInfo(npmName, register) {
 
 //得到镜像地址
 function getRegister(isOrigin = false) {
-  return isOrigin ? 'https://registry.npmjs.org/' : 'https://registry.npm.taobao.org/'
+  return isOrigin ? 'https://registry.npmjs.org/' : 'https://registry.npmmirror.com /'
 }
 
 //获取所有的版本号
