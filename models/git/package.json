@@ -1,11 +1,11 @@
 {
-  "name": "@haha-cli-dev/publish",
+  "name": "@haha-cli-dev/git",
   "version": "1.0.2",
   "description": "> TODO: description",
   "author": "haha58 <1461089222@qq.com>",
   "homepage": "https://github.com/haha58/haha-cli-dev#readme",
   "license": "ISC",
-  "main": "lib/index.js",
+  "main": "lib/git.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -21,15 +21,12 @@
     "url": "git+https://github.com/haha58/haha-cli-dev.git"
   },
   "scripts": {
-    "test": "node ./__tests__/@haha-cli-dev/publish.test.js"
-  },
-  "dependencies": {
-    "@haha-cli-dev/command": "^1.0.6",
-    "@haha-cli-dev/log": "^1.0.7",
-    "@haha-cli-dev/git": "file:../../models/git",
-    "fs-extra": "^7.0.1"
+    "test": "node ./__tests__/@haha-cli-dev/git.test.js"
   },
   "bugs": {
     "url": "https://github.com/haha58/haha-cli-dev/issues"
+  },
+  "dependencies": {
+    "simple-git": "^3.24.0"
   }
 }

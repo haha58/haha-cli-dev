@@ -137,6 +137,7 @@ function registerCommander() {
   // 监听未注册的所有命令
   program
     .on('command:*', obj => {
+      log.info('obj',obj)
       const availableCommand = program.commands.map(command => command._name)
       log.info(colors.red('未知的命令 ' + obj[0]))
       if (availableCommand.length) {

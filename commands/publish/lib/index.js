@@ -5,6 +5,7 @@ const path = require('path')
 const fse = require('fs-extra')
 const Command = require('@haha-cli-dev/command')
 const log = require('@haha-cli-dev/log')
+const Git=require('@haha-cli-dev/git')
 class publishCommand extends Command {
   //Command中一定要实现init、exec两个方法
   //主要是参数进行处理
@@ -17,8 +18,11 @@ class publishCommand extends Command {
       const startTime=new Date().getTime()
       const endTime=new Date().getTime()
       //1.预检查
-      this.prepare()
+      this.prepare(this.projectInfo)
       //2.git FLow自动化
+      const git=new Git()  //创建Git实例
+      git.init()    //git初始化
+      git.prepare()
       //3.云构建与云发布
       log.info('本次发布耗时：',Math.floor((endTime-startTime)/1000)+'秒')
     } catch (error) {
