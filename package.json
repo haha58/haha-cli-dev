@@ -1,6 +1,6 @@
 {
   "name": "haha-cli-dev",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "haha-cli-dev": "^2.0.0",
+    "haha-cli-dev": "^2.0.4",
     "lerna": "^8.1.2"
   },
   "publishConfig": {
