@@ -14,6 +14,7 @@
     "lib"
   ],
   "publishConfig": {
+    "access": "public",
     "registry": "https://registry.npmjs.org "
   },
   "repository": {
@@ -26,7 +27,7 @@
   "dependencies": {
     "@haha-cli-dev/command": "^4.0.0",
     "@haha-cli-dev/log": "^4.0.0",
-    "@haha-cli-dev/git": "^4.0.0",
+    "@haha-cli-dev/git": "file:../../models/git",
     "fs-extra": "^7.0.1"
   },
   "bugs": {

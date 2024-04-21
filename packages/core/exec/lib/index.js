@@ -20,6 +20,7 @@ async function exec(...argv) {
   let storeDir = ""
   const cmdObj = arguments[arguments.length - 1]
   const packageName = SETTINGS[cmdObj._name]
+  log.verbose("packageName",cmdObj,packageName)
   let pkg
   //是否执行本地代码
   if (!targetPath) {
@@ -50,6 +51,7 @@ async function exec(...argv) {
   //获取本地代码入口文件
   const rootFile = pkg.getRootFilePath()
   log.verbose("rootFile", rootFile)
+  log.verbose("pkg", pkg)
   if (rootFile) {
     //cli已经对全局的异常进行了捕获，为什么在这里仍需要使用try，catch捕获command的异常，因为在使用了program.action异步处理了。异常处理的都需要重新捕获异常
     try {

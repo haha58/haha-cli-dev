@@ -1,14 +1,14 @@
 {
   "name": "haha-cli-dev",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@haha-cli-dev/core": "^4.0.0",
     "lerna": "^8.1.2"
   },
   "publishConfig": {

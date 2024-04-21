@@ -115,6 +115,8 @@ function registerCommander() {
 
   program
     .command('publish')
+    .description('发布项目')
+    .alias('p') //添加别名
     .action(exec)
 
   //注册debug模式
