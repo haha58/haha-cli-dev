@@ -47,16 +47,10 @@ function getNpmSemverVersions(baseVersion, versions) {
 //获取最新的版本号
 async function getNpmLastVersion(baseVersion, npmName, register) {
   const versions = await getNpmVersions(npmName)
-  if (baseVersion === 'lastest') {
-    baseVersion = versions[0]
+  const len=versions&& versions.length
+  if (len) {
+    return versions[len-1]
   }
-
-  const newVersions = getNpmSemverVersions(baseVersion, versions)
-
-  if (newVersions && newVersions.length > 0) {
-    return newVersions[0]
-  }
-  return null
 }
 
 module.exports = {
