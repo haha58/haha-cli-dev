@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@haha-cli-dev/log": "^4.0.0",
-    "@haha-cli-dev/packages": "^4.0.0",
+    "@haha-cli-dev/packages": "^4.0.1",
     "@haha-cli-dev/utils": "^4.0.0"
   }
 }

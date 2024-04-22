@@ -1,6 +1,6 @@
 {
   "name": "@haha-cli-dev/init",
-  "version": "4.0.0",
+  "version": "4.0.2",
   "description": "> TODO: description",
   "author": "haha58 <9312877+haha58@user.noreply.gitee.com>",
   "homepage": "",
@@ -26,7 +26,7 @@
   "dependencies": {
     "@haha-cli-dev/command": "^4.0.0",
     "@haha-cli-dev/log": "^4.0.0",
-    "@haha-cli-dev/packages": "^4.0.0",
+    "@haha-cli-dev/packages": "^4.0.1",
     "@haha-cli-dev/request": "^4.0.0",
     "@haha-cli-dev/utils": "^4.0.0",
     "ejs": "^3.1.8",
