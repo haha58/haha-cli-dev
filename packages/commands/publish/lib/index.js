@@ -10,7 +10,7 @@ class publishCommand extends Command {
   //Command中一定要实现init、exec两个方法
   //主要是参数进行处理
   init(){
-    console.log("init",this._argv)
+    console.log("init publish")
   }
   //执行环境，进行逻辑处理，在trycatch中  --debbug 进行调试
   async exec(){
@@ -18,17 +18,17 @@ class publishCommand extends Command {
       const startTime=new Date().getTime()
       const endTime=new Date().getTime()
       //1.预检查
-      this.prepare(this.projectInfo)
+      this.prepare()
       //2.git FLow自动化
-      const git=new Git()  //创建Git实例
+      const git=new Git(this.projectInfo)  //创建Git实例
       git.init()    //git初始化
       git.prepare()
       //3.云构建与云发布
       log.info('本次发布耗时：',Math.floor((endTime-startTime)/1000)+'秒')
     } catch (error) {
-      log.error(e?.message)
+      log.error('11',error?.message)
       if (process.env.LOG_LEVEL === 'verbose') {
-        console.log('e', e)
+        console.log('error', error)
       }
     }
   }
@@ -43,10 +43,9 @@ class publishCommand extends Command {
     }
     //2.确认是否包含name、version、build命令
     const pkg=fse.readJSONSync(pkgPath)
-    const {name,version,scripts}=pkg
-    log.verbose('package.json',name,version,scripts)
-    if(!name||!version||!scripts||!scripts.build){
-      throw new Error('package.json信息不全，请检查是否存在name、version和scripts(需提供build命令)')
+    const {name,version,main}=pkg
+    if(!name||!version||!main){
+      throw new Error('package.json信息不全，请检查是否存在name、version和main')
     }
     this.projectInfo={name,version,dir:projectPath}
   }

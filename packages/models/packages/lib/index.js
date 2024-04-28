@@ -35,7 +35,7 @@ class Packages {
     //Packages version
     this.packageVersion = options.packageVersion
     //前缀
-    this.cacheFilePathPrefix = this.packageName.replace("/", "_")
+    this.cacheFilePathPrefix = options.packageName.replace("/", "_")
   }
 
   //准备工作
@@ -102,8 +102,11 @@ class Packages {
    * 4.路径的兼容(macOs/windows)
    */
   getRootFilePath() {
-    function _getRootFilePath(_path) {
-      const rootDir = pkgDir(_path)
+    function _getRootFilePath(_path,flag) {
+      let rootDir=''
+      if(flag){
+        rootDir = pkgDir(_path)
+      }
       const pkgFile = require(path.resolve(rootDir, "package.json"))
       const lib = pkgFile && (pkgFile.lib || pkgFile.main)
       if (lib) {
@@ -111,12 +114,11 @@ class Packages {
       }
       return null
     }
-
     // 如果 this.storeDir 存在 ,就是需要下载安装,否则就是本地安装
     if (this.storeDir) {
-      return _getRootFilePath(this.cacheFilePath)
+      return _getRootFilePath(this.cacheFilePath,true)
     } else {
-      return _getRootFilePath(this.targetPath)
+      return _getRootFilePath(this.targetPath,false)
     }
   }
 }

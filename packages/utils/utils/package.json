@@ -23,6 +23,7 @@
     "cli-spinner": "^0.2.10"
   },
   "devDependencies": {
-    "child_process": "^1.0.2"
+    "child_process": "^1.0.2",
+    "fs-extra": "^7.0.1"
   }
 }

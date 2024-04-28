@@ -1,6 +1,25 @@
 'use strict';
 //simple-git 是一个轻量级的Node.js库，提供了一系列简化的API，用于操作Git命令。
 const SimpleGit = require('simple-git');
+const path = require('path');
+const userHome = require('user-home');
+const log=require('@haha-cli-dev/log')
+const inquirer = require('inquirer')
+const {readFile,writeFile}=require('@haha-cli-dev/utils')
+const fse = require('fs-extra')
+
+const DEFAULT_CLI_HOME='.imooc-cli-dev'
+const GIT_SERVER_FILE='.git_server'    //缓存文件
+const GIT_ROOT_DIR='.git'   //文件根目录
+const GITHUB='Github' 
+const GITEE='Gitee'
+const GIT_SERVER_TYPE=[{
+  name:'Github',
+  value:GITHUB
+},{
+  name:'Gitee',
+  value:GITEE
+}]
 class Git {
   constructor({ name, version, dir }) {
     this.name = name;
@@ -13,11 +32,55 @@ class Git {
 
   async prepare() {
     this.checkHomePath(); //检查缓存主目录
+    this.checkGitServer();  //检查用户远程仓库类型
   }
-  checkHomePath() {}
+  async checkHomePath() {
+    try {
+      if(!this.homePath){
+        if(process.env.CLI_HOME_PATH){
+          this.homePath=process.env.CLI_HOME_PATH
+        }else{
+          this.homePath=path.resolve(userHome,DEFAULT_CLI_HOME)
+        }
+        log.verbose('this.homePath',this.homePath)
+        await fse.ensureDirSync(this.homePath)
+        if(!await fse.existsSync(this.homePath)){
+          throw new Error('用户主目录获取失败')
+        }
+      }
+    } catch (error) {
+      log.error(error.message)
+    }
+  }
 
+  async checkGitServer(){
+    const gitServerPath=this.createPath(GIT_SERVER_FILE)
+    console.log("gitServerPath",gitServerPath)
+    let gitServer=readFile(gitServerPath)
+    console.log("gitServer",gitServer)
+    if(!gitServer){
+        gitServer= (await inquirer.prompt({
+        type: 'list',
+        message: '请选择您想要托管的Git平台',
+        name: 'gitServer',
+        default:GITHUB,
+        choices:GIT_SERVER_TYPE
+      })).gitServer
+      console.log("gitServer",gitServer)
+      writeFile(gitServerPath,gitServer)
+      log.success('git server写入成功',`${gitServer} ---> ${gitServerPath}`)
+    }else{
+      log.success('git server获取成功',gitServer)
+    }
+  }
+
+  createPath(file){
+    const rootDir=path.resolve(this.homePath,GIT_ROOT_DIR)
+    const filePath=path.resolve(rootDir,file)
+    fse.ensureDirSync(rootDir)
+    return filePath
+  }
   init() {
-    console.log('init');
   }
 }
 

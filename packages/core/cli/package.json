@@ -20,7 +20,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "@haha-cli-dev/exec": "^6.0.0",
+    "@haha-cli-dev/exec": "file:../exec",
     "@haha-cli-dev/get-npm-info": "^6.0.0",
     "@haha-cli-dev/log": "^6.0.0",
     "colors": "^1.4.0",

@@ -1,6 +1,6 @@
 {
   "name": "@haha-cli-dev/init",
-  "version": "6.0.0",
+  "version": "7.0.0",
   "description": "> TODO: description",
   "author": "haha58 <9312877+haha58@user.noreply.gitee.com>",
   "homepage": "",
@@ -30,10 +30,9 @@
     "@haha-cli-dev/request": "^6.0.0",
     "@haha-cli-dev/utils": "^6.0.0",
     "ejs": "^3.1.8",
+    "fs-extra": "^10.1.0",
     "glob": "^8.0.3",
     "inquirer": "^8.2.4",
-    "fs-extra": "^10.1.0",
     "kebab-case": "^1.0.1"
-  },
-  "devDependencies": {}
+  }
 }

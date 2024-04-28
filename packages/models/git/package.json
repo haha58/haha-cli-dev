@@ -28,6 +28,11 @@
     "url": "https://github.com/haha58/haha-cli-dev/issues"
   },
   "dependencies": {
-    "simple-git": "^3.24.0"
+    "simple-git": "^3.24.0",
+    "user-home": "^3.0.0",
+    "@haha-cli-dev/log":"file:../../utils/log",
+    "@haha-cli-dev/utils":"file:../../utils/utils",
+    "fs-extra": "^10.1.0",
+    "inquirer": "^8.2.4"
   }
 }
