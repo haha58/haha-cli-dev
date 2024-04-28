@@ -117,6 +117,7 @@ function registerCommander() {
     .command('publish')
     .description('发布项目')
     .alias('p') //添加别名
+    .option('--refreshServer','强制更新远程仓库')
     .action(exec)
 
   //注册debug模式

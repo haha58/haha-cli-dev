@@ -21,13 +21,14 @@ const GIT_SERVER_TYPE=[{
   value:GITEE
 }]
 class Git {
-  constructor({ name, version, dir }) {
+  constructor({ name, version, dir },{refreshServer=false}) {
     this.name = name;
     this.version = version;
     this.dir = dir;
     this.git = SimpleGit(dir);
     this.gitServer = null; //此处需要用户选择
     this.homePath = null; //缓存用户主目录
+    this.refreshServer=refreshServer  //强制刷新
   }
 
   async prepare() {
@@ -58,7 +59,7 @@ class Git {
     console.log("gitServerPath",gitServerPath)
     let gitServer=readFile(gitServerPath)
     console.log("gitServer",gitServer)
-    if(!gitServer){
+    if(!gitServer||this.refreshServer){
         gitServer= (await inquirer.prompt({
         type: 'list',
         message: '请选择您想要托管的Git平台',
@@ -72,8 +73,13 @@ class Git {
     }else{
       log.success('git server获取成功',gitServer)
     }
+    this.gitServer=this.createGitServer(gitServer)
   }
 
+  createGitServer(gitServer){
+
+  }
+  
   createPath(file){
     const rootDir=path.resolve(this.homePath,GIT_ROOT_DIR)
     const filePath=path.resolve(rootDir,file)

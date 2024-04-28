@@ -10,7 +10,7 @@ class publishCommand extends Command {
   //Command中一定要实现init、exec两个方法
   //主要是参数进行处理
   init(){
-    console.log("init publish")
+    this.options={refreshServer:this._argv[0].refreshServer}
   }
   //执行环境，进行逻辑处理，在trycatch中  --debbug 进行调试
   async exec(){
@@ -20,7 +20,7 @@ class publishCommand extends Command {
       //1.预检查
       this.prepare()
       //2.git FLow自动化
-      const git=new Git(this.projectInfo)  //创建Git实例
+      const git=new Git(this.projectInfo,this.options)  //创建Git实例
       git.init()    //git初始化
       git.prepare()
       //3.云构建与云发布

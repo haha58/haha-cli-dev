@@ -1,6 +1,7 @@
 'use strict'
 
 const { resolve } = require('path')
+const fse = require('fs-extra')
 
 function isObject(o) {
   return Object.prototype.toString.call(o) === '[object Object]'
@@ -37,4 +38,37 @@ function execAysnc(command, args, options = {}) {
   })
 }
 
-module.exports = { isObject, spinnerStart, sleep, execAysnc }
+function writeFile(path,data,{rewrite=true}={}){
+  if(fse.existsSync(path)){
+    if(rewrite){
+      fse.writeFileSync(path,data)
+      return true
+    }
+    return false
+  }else{
+    fse.writeFileSync(path,data)
+    return true
+  }
+}
+
+function readFile(path,options={}){
+  if(fse.existsSync(path)){
+    const buffer=fse.readFileSync(path)
+    if(buffer){
+      if(options?.toJson){
+        return buffer.toJSON()
+      }else{
+        return buffer.toString()
+      }
+    }
+  }
+  return null
+}
+module.exports = { 
+  isObject,
+  spinnerStart, 
+  sleep, 
+  execAysnc,
+  readFile,
+  writeFile 
+}
