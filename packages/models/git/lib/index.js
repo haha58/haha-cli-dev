@@ -7,12 +7,15 @@ const log = require('@haha-cli-dev/log');
 const inquirer = require('inquirer');
 const { readFile, writeFile } = require('@haha-cli-dev/utils');
 const fse = require('fs-extra');
+const terminalLink = require('terminal-link'); //在终端生成链接
 const Github = require('./Github');
 const Gitee = require('./Gitee');
 
 const DEFAULT_CLI_HOME = '.imooc-cli-dev';
 const GIT_SERVER_FILE = '.git_server'; //缓存文件
 const GIT_ROOT_DIR = '.git'; //文件根目录
+const GIT_TOKEN_FILE = '.git_token'; //token缓存文件
+
 const GITHUB = 'Github';
 const GITEE = 'Gitee';
 const GIT_SERVER_TYPE = [
@@ -25,21 +28,28 @@ const GIT_SERVER_TYPE = [
     value: GITEE,
   },
 ];
+
 class Git {
-  constructor({ name, version, dir }, { refreshServer = false }) {
+  constructor(
+    { name, version, dir },
+    { refreshServer = false, refreshToken = false }
+  ) {
     this.name = name;
     this.version = version;
     this.dir = dir;
     this.git = SimpleGit(dir);
     this.gitServer = null; //此处需要用户选择
     this.homePath = null; //缓存用户主目录
-    this.refreshServer = refreshServer; //强制刷新
+    this.refreshServer = refreshServer; //强制刷新远程仓库
+    this.refreshToken = refreshToken; //强制刷新远程仓库
   }
 
   async prepare() {
-    this.checkHomePath(); //检查缓存主目录
-    this.checkGitServer(); //检查用户远程仓库类型
+    await this.checkHomePath(); //检查缓存主目录
+    await this.checkGitServer(); //检查用户远程仓库类型
+    await this.checkGitToken(); //生成远程仓库token
   }
+
   async checkHomePath() {
     try {
       if (!this.homePath) {
@@ -82,13 +92,41 @@ class Git {
         log.success('git server获取成功', gitServer);
       }
       this.gitServer = this.createGitServer(gitServer);
-      console.log('this.gitServer', this.gitServer);
+      console.log('gitServer', this.gitServer);
       if (!this.gitServer) {
         throw new Error('GitServer 初始化失败');
       }
     } catch (error) {
       log.error(error.message);
     }
+  }
+
+  async checkGitToken() {
+    const tokenPath = this.createPath(GIT_TOKEN_FILE);
+    let token = readFile(tokenPath);
+    if (!token||this.refreshToken) {
+      log.warn(
+        this.gitServer.type + ' token未生成',
+        '请先生成' +
+          this.gitServer.type +
+          ' token, ' +
+          terminalLink('链接', this.gitServer?.getTokenHelpUrl())
+      );
+      token = (
+        await inquirer.prompt({
+          type: 'password',
+          name: 'token',
+          message: '请将token复制到这里',
+          default: '',
+        })
+      ).token;
+      writeFile(tokenPath, token);
+      log.success('token写入成功', `${token} ---> ${tokenPath}`);
+    } else {
+      log.success('token获取成功', tokenPath);
+    }
+    this.token=token;
+    this.gitServer.setToken(token)
   }
 
   createGitServer(gitServer) {
@@ -106,6 +144,7 @@ class Git {
     fse.ensureDirSync(rootDir);
     return filePath;
   }
+  
   init() {}
 }
 

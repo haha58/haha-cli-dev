@@ -118,6 +118,7 @@ function registerCommander() {
     .description('发布项目')
     .alias('p') //添加别名
     .option('--refreshServer','强制更新远程仓库')
+    .option('--refreshToken','强制更新远程仓库token')
     .action(exec)
 
   //注册debug模式
