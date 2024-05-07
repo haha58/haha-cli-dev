@@ -28,12 +28,13 @@
     "url": "https://github.com/haha58/haha-cli-dev/issues"
   },
   "dependencies": {
-    "simple-git": "^3.24.0",
-    "user-home": "^3.0.0",
-    "@haha-cli-dev/log":"file:../../utils/log",
-    "@haha-cli-dev/utils":"file:../../utils/utils",
+    "@haha-cli-dev/log": "file:../../utils/log",
+    "@haha-cli-dev/utils": "file:../../utils/utils",
+    "axios": "^1.6.8",
     "fs-extra": "^10.1.0",
     "inquirer": "^8.2.4",
-    "terminal-link": "^2.1.1"
+    "simple-git": "^3.24.0",
+    "terminal-link": "^2.1.1",
+    "user-home": "^3.0.0"
   }
 }

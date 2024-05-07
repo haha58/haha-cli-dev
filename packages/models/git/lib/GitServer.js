@@ -39,7 +39,7 @@ class GitServer{
   }
 
   setToken(token){
-    error("setToken",token)
+    this.token=token
   }
 }
 

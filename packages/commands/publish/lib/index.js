@@ -32,7 +32,7 @@ class publishCommand extends Command {
         Math.floor((endTime - startTime) / 1000) + '秒'
       );
     } catch (error) {
-      log.error('11', error?.message);
+      log.error(error?.message);
       if (process.env.LOG_LEVEL === 'verbose') {
         console.log('error', error);
       }

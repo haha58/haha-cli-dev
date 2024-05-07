@@ -40,6 +40,8 @@ class Git {
     this.git = SimpleGit(dir);
     this.gitServer = null; //此处需要用户选择
     this.homePath = null; //缓存用户主目录
+    this.user = null;   //用户
+    this.orgs = null;//组织仓库
     this.refreshServer = refreshServer; //强制刷新远程仓库
     this.refreshToken = refreshToken; //强制刷新远程仓库
   }
@@ -48,6 +50,7 @@ class Git {
     await this.checkHomePath(); //检查缓存主目录
     await this.checkGitServer(); //检查用户远程仓库类型
     await this.checkGitToken(); //生成远程仓库token
+    await this.getUserAndOrgs();//获取远程仓库用户和组织信息（因为这个库可能在组织下）
   }
 
   async checkHomePath() {
@@ -102,31 +105,52 @@ class Git {
   }
 
   async checkGitToken() {
-    const tokenPath = this.createPath(GIT_TOKEN_FILE);
-    let token = readFile(tokenPath);
-    if (!token||this.refreshToken) {
-      log.warn(
-        this.gitServer.type + ' token未生成',
-        '请先生成' +
+    try {
+      const tokenPath = this.createPath(GIT_TOKEN_FILE);
+      let token = readFile(tokenPath);
+      if (!token || this.refreshToken || this.refreshServer) {
+        log.warn(
+          this.gitServer.type + ' token未生成',
+          '请先生成' +
           this.gitServer.type +
           ' token, ' +
           terminalLink('链接', this.gitServer?.getTokenHelpUrl())
-      );
-      token = (
-        await inquirer.prompt({
-          type: 'password',
-          name: 'token',
-          message: '请将token复制到这里',
-          default: '',
-        })
-      ).token;
-      writeFile(tokenPath, token);
-      log.success('token写入成功', `${token} ---> ${tokenPath}`);
-    } else {
-      log.success('token获取成功', tokenPath);
+        );
+        token = (
+          await inquirer.prompt({
+            type: 'password',
+            name: 'token',
+            message: '请将token复制到这里',
+            default: '',
+          })
+        ).token;
+        writeFile(tokenPath, token);
+        log.success('token写入成功', `${token} ---> ${tokenPath}`);
+      } else {
+        log.success('token获取成功', tokenPath);
+      }
+      this.token = token;
+      this.gitServer.setToken(token)
+    } catch (error) {
+      log.error(error.message);
     }
-    this.token=token;
-    this.gitServer.setToken(token)
+  }
+
+  async getUserAndOrgs() {
+    try {
+      this.user = await this.gitServer.getUser()
+      if (!this.user?.login) {
+        throw new Error('用户信息获取失败')
+      }
+      this.orgs = await this.gitServer.getOrg(this.user.login)
+      console.log('this.orgs', this.orgs)
+      if (!this.orgs) {
+        throw new Error('组织信息获取失败')
+      }
+      log.success(this.gitServer.type + '用户和组织信息获取成功')
+    } catch (error) {
+      log.error(error.message);
+    }
   }
 
   createGitServer(gitServer) {
@@ -144,8 +168,8 @@ class Git {
     fse.ensureDirSync(rootDir);
     return filePath;
   }
-  
-  init() {}
+
+  init() { }
 }
 
 module.exports = Git;
