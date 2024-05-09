@@ -24,12 +24,12 @@ class Gitee extends GitServer{
     })
   }
 
-  getSSHKeyUrl(){
+  getTokenUrl(){
     return 'https://gitee.com/profile/personal_access_tokens'
   }
 
   getTokenHelpUrl(){
-    return 'https://gitee.com/profile/personal_access_tokens'
+    return 'https://gitee.com/help/articles/4191'
   }
 }
 

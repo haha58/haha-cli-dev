@@ -1,12 +1,30 @@
 const GitServer = require('./GitServer');
+const GithubRequest=require('./GithubRequest')
 
 class Github extends GitServer{
   constructor(){
     super('github')
   }
 
-  getSSHKeyUrl(){
-    return 'https://github.com/settings/keys'
+  setToken(token){
+    super.setToken(token)
+    this.request=new GithubRequest(token)
+  }
+
+  //获取用户的信息
+  getUser(){
+    return this.request.get('/user')
+  }
+
+  getOrg(){
+    return this.request.get(`/users/orgs`,{
+      page:1,
+      per_page:100
+    })
+  }
+
+  getTokenUrl(){
+    return 'https://github.com/settings/tokens'
   }
 
   getTokenHelpUrl(){

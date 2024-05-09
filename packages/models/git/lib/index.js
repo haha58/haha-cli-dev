@@ -114,7 +114,7 @@ class Git {
           '请先生成' +
           this.gitServer.type +
           ' token, ' +
-          terminalLink('链接', this.gitServer?.getTokenHelpUrl())
+          terminalLink('链接', this.gitServer?.getTokenUrl())
         );
         token = (
           await inquirer.prompt({
@@ -143,7 +143,6 @@ class Git {
         throw new Error('用户信息获取失败')
       }
       this.orgs = await this.gitServer.getOrg(this.user.login)
-      console.log('this.orgs', this.orgs)
       if (!this.orgs) {
         throw new Error('组织信息获取失败')
       }
