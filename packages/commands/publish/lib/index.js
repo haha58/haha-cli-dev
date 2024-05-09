@@ -13,6 +13,7 @@ class publishCommand extends Command {
     this.options = {
       refreshServer: this._argv[0].refreshServer,
       refreshToken: this._argv[0].refreshToken,
+      refreshOwner:this._argv[0].refreshOwner,
     };
   }
   //执行环境，进行逻辑处理，在trycatch中  --debbug 进行调试

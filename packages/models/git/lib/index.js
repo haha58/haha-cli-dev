@@ -15,9 +15,14 @@ const DEFAULT_CLI_HOME = '.imooc-cli-dev';
 const GIT_SERVER_FILE = '.git_server'; //缓存文件
 const GIT_ROOT_DIR = '.git'; //文件根目录
 const GIT_TOKEN_FILE = '.git_token'; //token缓存文件
+const GIT_OWN_FILE = '.git_own'; //当前用户选择那种仓库类型
+const GIT_LOGIN_FILE = '.git_login'; //当前用户登录名
 
 const GITHUB = 'Github';
 const GITEE = 'Gitee';
+const REPO_OWNER_USER = 'user';
+const REPO_OWNER_ORG = 'org';
+
 const GIT_SERVER_TYPE = [
   {
     name: 'Github',
@@ -28,29 +33,49 @@ const GIT_SERVER_TYPE = [
     value: GITEE,
   },
 ];
+const GIT_OWNER_TYPE = [
+  {
+    name: '个人',
+    value: REPO_OWNER_USER,
+  },
+  {
+    name: '组织',
+    value: REPO_OWNER_ORG,
+  },
+];
+const GIT_OWNER_TYPE_ONLY = [
+  {
+    name: '个人',
+    value: REPO_OWNER_USER,
+  },
+];
 
 class Git {
   constructor(
     { name, version, dir },
-    { refreshServer = false, refreshToken = false }
+    { refreshServer = false, refreshToken = false, refreshOwner = false }
   ) {
-    this.name = name;
-    this.version = version;
-    this.dir = dir;
-    this.git = SimpleGit(dir);
-    this.gitServer = null; //此处需要用户选择
-    this.homePath = null; //缓存用户主目录
-    this.user = null;   //用户
-    this.orgs = null;//组织仓库
-    this.refreshServer = refreshServer; //强制刷新远程仓库
-    this.refreshToken = refreshToken; //强制刷新远程仓库
+    this.name = name;  //项目名称
+    this.version = version;   //项目版本
+    this.dir = dir;  //源码目录
+    this.git = SimpleGit(dir);  //SimpleGit实例
+    this.gitServer = null; //gitServer实例
+    this.homePath = null; //本地缓存目录
+    this.user = null; //用户信息
+    this.orgs = null; //用户所属组织仓库
+    this.owner = null;//远程仓库类型
+    this.login = null;//远程仓库登录名
+    this.refreshServer = refreshServer; //强制刷新远程仓库类型
+    this.refreshToken = refreshToken; //强制刷新远程仓库token
+    this.refreshOwner = refreshOwner; //强制刷新远程仓库类型
   }
 
   async prepare() {
     await this.checkHomePath(); //检查缓存主目录
     await this.checkGitServer(); //检查用户远程仓库类型
     await this.checkGitToken(); //生成远程仓库token
-    await this.getUserAndOrgs();//获取远程仓库用户和组织信息（因为这个库可能在组织下）
+    await this.getUserAndOrgs(); //获取远程仓库用户和组织信息（因为这个库可能在组织下）
+    await this.checkGitOwner(); //确认远程仓库类型
   }
 
   async checkHomePath() {
@@ -130,7 +155,7 @@ class Git {
         log.success('token获取成功', tokenPath);
       }
       this.token = token;
-      this.gitServer.setToken(token)
+      this.gitServer.setToken(token);
     } catch (error) {
       log.error(error.message);
     }
@@ -138,17 +163,64 @@ class Git {
 
   async getUserAndOrgs() {
     try {
-      this.user = await this.gitServer.getUser()
+      this.user = await this.gitServer.getUser();
+      log.verbose("user", this.user)
       if (!this.user?.login) {
-        throw new Error('用户信息获取失败')
+        throw new Error('用户信息获取失败');
       }
-      this.orgs = await this.gitServer.getOrg(this.user.login)
+      this.orgs = await this.gitServer.getOrg(this.user.login);
+      log.verbose("orgs", this.orgs)
       if (!this.orgs) {
-        throw new Error('组织信息获取失败')
+        throw new Error('组织信息获取失败');
       }
-      log.success(this.gitServer.type + '用户和组织信息获取成功')
+      log.success(this.gitServer.type + '用户和组织信息获取成功');
     } catch (error) {
       log.error(error.message);
+    }
+  }
+
+  async checkGitOwner() {
+    try {
+      const ownerPath = this.createPath(GIT_OWN_FILE);
+      const loginPath = this.createPath(GIT_LOGIN_FILE);
+      let owner = readFile(ownerPath);
+      let login = readFile(loginPath);
+      //因为可能owner选择一半，脚手架停止
+      if (!owner || !login || this.refreshServer || this.checkGitToken || this.refreshOwner) {
+        owner = (
+          await inquirer.prompt({
+            type: 'list',
+            message: '请选择远程仓库类型',
+            name: 'owner',
+            default: REPO_OWNER_USER,
+            choices: this.orgs.length > 0 ? GIT_OWNER_TYPE : GIT_OWNER_TYPE_ONLY,
+          })
+        ).owner;
+        if (owner === REPO_OWNER_USER) {
+          login = this.user.login
+        } else {
+          login = (await inquirer.prompt({
+            type: 'list',
+            message: '请选择',
+            name: 'login',
+            choices: this.orgs.map(item => ({
+              name: item.login,
+              value: item.login
+            }))
+          })).login
+        }
+        writeFile(ownerPath, owner)
+        writeFile(loginPath, login)
+        log.success('owner写入成功', `${owner} ---> ${ownerPath}`);
+        log.success('login写入成功', `${login} ---> ${loginPath}`);
+      } else {
+        log.success('owner获取成功', owner);
+        log.success('login获取成功', login);
+      }
+      this.owner = owner;
+      this.login = login;
+    } catch (error) {
+      log.error('checkGitOwner', error.message)
     }
   }
 

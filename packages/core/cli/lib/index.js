@@ -119,6 +119,7 @@ function registerCommander() {
     .alias('p') //添加别名
     .option('--refreshServer','强制更新远程仓库')
     .option('--refreshToken','强制更新远程仓库token')
+    .option('--refreshOwner','强制更新远程仓库类型')
     .action(exec)
 
   //注册debug模式
