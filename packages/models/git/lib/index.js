@@ -231,7 +231,7 @@ class Git {
         let spinner = spinnerStart('开始创建远程仓库')
         try {
           if (this.owner === REPO_OWNER_USER) {
-            repo = await this.gitServer.createRepo(this.name+122)
+            repo = await this.gitServer.createRepo(this.name)
           } else {
             this.gitServer.createOrgRepo(this.name, this.login)
           }

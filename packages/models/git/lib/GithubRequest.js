@@ -36,6 +36,15 @@ class GithubRequest {
       headers
     })
   }
+
+  post(url,data,headers){
+    return this.service({
+      url,
+      data,
+      method:'POST',
+      headers
+    })
+  }
 }
 
 module.exports = GithubRequest

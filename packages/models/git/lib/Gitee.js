@@ -31,7 +31,7 @@ class Gitee extends GitServer{
     })
   }
 
-  async createRepo(repoName){
+  createRepo(repoName){
     return this.request.post('/user/repos',{
       name:repoName
     }).then((response)=>{
@@ -39,7 +39,7 @@ class Gitee extends GitServer{
      })
    }
 
-   async createOrgRepo(){
+  createOrgRepo(){
 
    }
 
