@@ -64,11 +64,25 @@ function readFile(path,options={}){
   }
   return null
 }
+
+function formatString(str) {
+  // 去掉首字符@
+  str = str.replace(/^@/, '');
+  // 将/替换成_
+  str = str.replace(/\//g, '_');
+  // 只保留字母、数字、下划线、中划线、英文句号
+  str = str.replace(/[^A-Za-z0-9_\-\.]/g, '');
+  // 必须以字母或数字开头
+  str = str.replace(/^[^A-Za-z0-9]+/, '');
+  return str;
+}
+
 module.exports = { 
   isObject,
   spinnerStart, 
   sleep, 
   execAysnc,
   readFile,
-  writeFile 
-}
+  writeFile,
+  formatString
+ }

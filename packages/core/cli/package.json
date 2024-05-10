@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@haha-cli-dev/exec": "file:../exec",
+    "@haha-cli-dev/utils": "file:../../utils/utils",
     "@haha-cli-dev/get-npm-info": "^6.0.0",
     "@haha-cli-dev/log": "^6.0.0",
     "colors": "^1.4.0",

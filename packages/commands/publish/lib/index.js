@@ -6,6 +6,7 @@ const fse = require('fs-extra');
 const Command = require('@haha-cli-dev/command');
 const log = require('@haha-cli-dev/log');
 const Git = require('@haha-cli-dev/git');
+const {formatString} = require('@haha-cli-dev/utils');
 class publishCommand extends Command {
   //Command中一定要实现init、exec两个方法
   //主要是参数进行处理
@@ -56,7 +57,8 @@ class publishCommand extends Command {
         'package.json信息不全，请检查是否存在name、version和main'
       );
     }
-    this.projectInfo = { name, version, dir: projectPath };
+    let _name=formatString(name)
+    this.projectInfo = { name:_name, version, dir: projectPath };
   }
 }
 

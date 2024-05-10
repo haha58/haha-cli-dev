@@ -5,7 +5,7 @@ const path = require('path');
 const userHome = require('user-home');
 const log = require('@haha-cli-dev/log');
 const inquirer = require('inquirer');
-const { readFile, writeFile } = require('@haha-cli-dev/utils');
+const { readFile, writeFile, spinnerStart } = require('@haha-cli-dev/utils');
 const fse = require('fs-extra');
 const terminalLink = require('terminal-link'); //在终端生成链接
 const Github = require('./Github');
@@ -65,6 +65,7 @@ class Git {
     this.orgs = null; //用户所属组织仓库
     this.owner = null;//远程仓库类型
     this.login = null;//远程仓库登录名
+    this.repo = null;  //远程仓库信息
     this.refreshServer = refreshServer; //强制刷新远程仓库类型
     this.refreshToken = refreshToken; //强制刷新远程仓库token
     this.refreshOwner = refreshOwner; //强制刷新远程仓库类型
@@ -76,6 +77,7 @@ class Git {
     await this.checkGitToken(); //生成远程仓库token
     await this.getUserAndOrgs(); //获取远程仓库用户和组织信息（因为这个库可能在组织下）
     await this.checkGitOwner(); //确认远程仓库类型
+    await this.checkRepo();  //检查并创建远程仓库
   }
 
   async checkHomePath() {
@@ -113,14 +115,12 @@ class Git {
             choices: GIT_SERVER_TYPE,
           })
         ).gitServer;
-        console.log('gitServer', gitServer);
         writeFile(gitServerPath, gitServer);
         log.success('git server写入成功', `${gitServer} ---> ${gitServerPath}`);
       } else {
         log.success('git server获取成功', gitServer);
       }
       this.gitServer = this.createGitServer(gitServer);
-      console.log('gitServer', this.gitServer);
       if (!this.gitServer) {
         throw new Error('GitServer 初始化失败');
       }
@@ -224,6 +224,36 @@ class Git {
     }
   }
 
+  async checkRepo() {
+    try {
+      let repo = await this.gitServer.getRepo(this.login, this.name)
+      if (!repo) {
+        let spinner = spinnerStart('开始创建远程仓库')
+        try {
+          if (this.owner === REPO_OWNER_USER) {
+            repo = await this.gitServer.createRepo(this.name+122)
+          } else {
+            this.gitServer.createOrgRepo(this.name, this.login)
+          }
+        } catch (error) {
+          log.error(error)
+        } finally {
+          spinner.stop(true)
+        }
+        if (repo) {
+          log.success('远程仓库创建成功')
+        } else {
+          throw new Error('远程仓库创建失败 请检查传参（https://gitee.com/api/v5/swagger#/postV5UserRepos）',)
+        }
+      } else {
+        log.success('远程仓库获取成功')
+      }
+      this.repo = repo
+      log.verbose('repo', repo)
+    } catch (error) {
+      log.error('checkRepo', error)
+    }
+  }
   createGitServer(gitServer) {
     if (gitServer === GITHUB) {
       return new Github();

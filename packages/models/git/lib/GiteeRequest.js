@@ -25,7 +25,19 @@ class GiteeRequest{
         ...params,
         access_token:this.token
       },
-      methods:'get',
+      method:'get',
+      headers
+    })
+  }
+
+  post(url,data,headers){
+    return this.service({
+      url,
+      data:{
+        access_token:this.token,
+        ...data
+      },
+      method:'POST',
       headers
     })
   }

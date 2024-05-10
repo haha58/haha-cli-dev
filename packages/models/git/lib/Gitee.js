@@ -24,6 +24,25 @@ class Gitee extends GitServer{
     })
   }
 
+  getRepo(login,repoName){
+    //https://gitee.com/api/v5/repos/{owner}/{repo}
+    return this.request.get(`/repos/${login}/${repoName}`).then((response)=>{
+     return this.handleResponse(response)
+    })
+  }
+
+  async createRepo(repoName){
+    return this.request.post('/user/repos',{
+      name:repoName
+    }).then((response)=>{
+      return this.handleResponse(response)
+     })
+   }
+
+   async createOrgRepo(){
+
+   }
+
   getTokenUrl(){
     return 'https://gitee.com/profile/personal_access_tokens'
   }

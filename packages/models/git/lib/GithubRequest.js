@@ -32,7 +32,7 @@ class GithubRequest {
     return this.service({
       url,
       params,
-      methods: 'get',
+      method: 'get',
       headers
     })
   }
