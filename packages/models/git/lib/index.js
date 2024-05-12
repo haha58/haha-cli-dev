@@ -233,7 +233,7 @@ class Git {
           if (this.owner === REPO_OWNER_USER) {
             repo = await this.gitServer.createRepo(this.name)
           } else {
-            this.gitServer.createOrgRepo(this.name, this.login)
+            repo = await this.gitServer.createOrgRepo(this.name, this.login)
           }
         } catch (error) {
           log.error(error)
@@ -243,7 +243,17 @@ class Git {
         if (repo) {
           log.success('远程仓库创建成功')
         } else {
-          throw new Error('远程仓库创建失败 请检查传参（https://gitee.com/api/v5/swagger#/postV5UserRepos）',)
+          let url = ''
+          if(this.gitServer.type===GITEE){
+            if (this.owner === REPO_OWNER_USER) {
+              url = 'https://gitee.com/api/v5/swagger#/postV5UserRepos'
+            } else {
+              url = 'https://gitee.com/api/v5/swagger#/postV5OrgsOrgRepos'
+            }
+          }else{
+            url=this.gitServer.getTokenHelpUrl()
+          }
+          throw new Error(`远程仓库创建失败 请检查传参（${url}）`)
         }
       } else {
         log.success('远程仓库获取成功')

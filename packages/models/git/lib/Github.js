@@ -17,7 +17,7 @@ class Github extends GitServer{
   }
 
   getOrg(){
-    return this.request.get(`/users/orgs`,{
+    return this.request.get(`/user/orgs`,{
       page:1,
       per_page:100
     })
@@ -32,11 +32,18 @@ class Github extends GitServer{
   createRepo(repoName){
     return this.request.post('/user/repos',{
       name:repoName
+    },{
+      Accept:'application/vnd.github.v3+json'
     })
    }
 
-  createOrgRepo(){
-
+  createOrgRepo(repoName,login){
+    return this.request.post(`/orgs/${login}/repos`,{
+      name:repoName
+    },{
+      //github 推荐添加
+      Accept:'application/vnd.github.v3+json'
+    })
    }
 
   getTokenUrl(){
@@ -44,7 +51,7 @@ class Github extends GitServer{
   }
 
   getTokenHelpUrl(){
-    return 'https://docs.github.com/en/authentication/connecting-to-github-with-ssh'
+    return 'https://docs.github.com/en/rest?apiVersion=2022-11-28'
   }
 }
 
