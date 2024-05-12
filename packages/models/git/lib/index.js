@@ -17,6 +17,7 @@ const GIT_ROOT_DIR = '.git'; //文件根目录
 const GIT_TOKEN_FILE = '.git_token'; //token缓存文件
 const GIT_OWN_FILE = '.git_own'; //当前用户选择那种仓库类型
 const GIT_LOGIN_FILE = '.git_login'; //当前用户登录名
+const GIT_IGNORE_FILE = '.gitignore'; //.gitignore文件
 
 const GITHUB = 'Github';
 const GITEE = 'Gitee';
@@ -78,6 +79,7 @@ class Git {
     await this.getUserAndOrgs(); //获取远程仓库用户和组织信息（因为这个库可能在组织下）
     await this.checkGitOwner(); //确认远程仓库类型
     await this.checkRepo();  //检查并创建远程仓库
+    await this.checkGitIgnore() //在远程仓库中，检查GitIgnore文件
   }
 
   async checkHomePath() {
@@ -264,6 +266,38 @@ class Git {
       log.error('checkRepo', error)
     }
   }
+
+  checkGitIgnore(){
+    //从远程仓库中目录中获取gitIgnore文件
+    const gitIgnore=path.resolve(this.dir,GIT_IGNORE_FILE)
+    //不要有空格，否则gitinore文件也会换行
+    if(!fse.existsSync(gitIgnore)){
+      writeFile(gitIgnore,`.DS_Store
+node_modules
+/dist
+
+#local env files
+.env.local
+.env.*.local
+
+#Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+#Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?`)
+log.success(`自动写入${GIT_IGNORE_FILE}文件成功`)
+    }
+  }
+
   createGitServer(gitServer) {
     if (gitServer === GITHUB) {
       return new Github();
