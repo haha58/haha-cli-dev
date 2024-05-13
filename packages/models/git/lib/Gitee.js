@@ -52,6 +52,11 @@ class Gitee extends GitServer {
   getTokenHelpUrl() {
     return 'https://gitee.com/help/articles/4191'
   }
+
+  getRemote(login,repoName){
+    //https://gitee.com/haha58/haha-cli-dev_publish.git
+    return `git@gitee.com:${login}/${repoName}.git`
+  }
 }
 
 module.exports = Gitee

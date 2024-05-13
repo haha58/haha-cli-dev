@@ -18,7 +18,7 @@ class GitServer{
     error("createOrgRepo")
   }
 
-  getRemote(){
+  getRemote(login,repoName){
     error("getRemote")
   }
 

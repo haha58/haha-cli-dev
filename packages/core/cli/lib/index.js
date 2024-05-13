@@ -157,4 +157,14 @@ function registerCommander() {
   }
 }
 
+process.on('unhandledRejection',(reason,p)=>{
+  //捕获一个未处理的promise rejection
+  throw reason
+})
+
+process.on('uncaughtException',(error)=>{
+  //收到一个未处理的错误，并处理
+  console.log(error)
+  process.exit(1)
+})
 module.exports = core

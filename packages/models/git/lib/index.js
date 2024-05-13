@@ -67,6 +67,7 @@ class Git {
     this.owner = null;//远程仓库类型
     this.login = null;//远程仓库登录名
     this.repo = null;  //远程仓库信息
+    this.remote=null;  //当前仓库的所有远程仓库信息
     this.refreshServer = refreshServer; //强制刷新远程仓库类型
     this.refreshToken = refreshToken; //强制刷新远程仓库token
     this.refreshOwner = refreshOwner; //强制刷新远程仓库类型
@@ -79,7 +80,8 @@ class Git {
     await this.getUserAndOrgs(); //获取远程仓库用户和组织信息（因为这个库可能在组织下）
     await this.checkGitOwner(); //确认远程仓库类型
     await this.checkRepo();  //检查并创建远程仓库
-    await this.checkGitIgnore() //在远程仓库中，检查GitIgnore文件
+    this.checkGitIgnore() //在远程仓库中，检查GitIgnore文件
+    await this.init()  //完成本地仓库初始化
   }
 
   async checkHomePath() {
@@ -314,7 +316,34 @@ log.success(`自动写入${GIT_IGNORE_FILE}文件成功`)
     return filePath;
   }
 
-  init() { }
+  async init() {
+    if(await this.getRemote()){
+      //获取远程仓库  如果已经完成初始化则返回
+      return
+    }
+    await this.initAndRemote()  //对本地仓库初始化并与远程仓库绑定
+  }
+
+  getRemote(){
+    const gitPath=path.resolve(this.dir,GIT_ROOT_DIR)
+    this.remote=this.gitServer.getRemote(this.login,this.name)
+    console.log(this.remote,fse.existsSync(gitPath))
+    if(fse.existsSync(gitPath)){
+      log.success('git已完成初始化')
+      return true
+    }
+  }
+
+  async initAndRemote(){
+    log.info('git执行初始化')
+    await this.git.init(this.dir)
+    log.info('添加git remote')
+    const remotes=await this.git.getRemotes()
+    log.verbose('git remotes',remotes)
+    if(!remotes.find(item=>item.name==='origin')){
+      await this.git.addRemote('origin',this.remote)
+    }
+  }
 }
 
 module.exports = Git;

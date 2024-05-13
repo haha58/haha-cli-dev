@@ -53,6 +53,11 @@ class Github extends GitServer{
   getTokenHelpUrl(){
     return 'https://docs.github.com/en/rest?apiVersion=2022-11-28'
   }
+
+  getRemote(login,repoName){
+    //https://gitee.com/haha58/haha-cli-dev_publish.git
+    return `git@github.com:${login}/${repoName}.git`
+  }
 }
 
 module.exports=Github

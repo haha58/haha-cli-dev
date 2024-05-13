@@ -26,7 +26,7 @@ class publishCommand extends Command {
       this.prepare();
       //2.git FLow自动化
       const git = new Git(this.projectInfo, this.options); //创建Git实例
-      git.init(); //git初始化
+      // git.init(); //git初始化
       git.prepare();
       //3.云构建与云发布
       log.info(
