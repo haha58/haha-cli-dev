@@ -67,7 +67,7 @@ class Git {
     this.owner = null;//远程仓库类型
     this.login = null;//远程仓库登录名
     this.repo = null;  //远程仓库信息
-    this.remote=null;  //当前仓库的所有远程仓库信息
+    this.remote = null;  //当前仓库的所有远程仓库信息
     this.refreshServer = refreshServer; //强制刷新远程仓库类型
     this.refreshToken = refreshToken; //强制刷新远程仓库token
     this.refreshOwner = refreshOwner; //强制刷新远程仓库类型
@@ -248,14 +248,14 @@ class Git {
           log.success('远程仓库创建成功')
         } else {
           let url = ''
-          if(this.gitServer.type===GITEE){
+          if (this.gitServer.type === GITEE) {
             if (this.owner === REPO_OWNER_USER) {
               url = 'https://gitee.com/api/v5/swagger#/postV5UserRepos'
             } else {
               url = 'https://gitee.com/api/v5/swagger#/postV5OrgsOrgRepos'
             }
-          }else{
-            url=this.gitServer.getTokenHelpUrl()
+          } else {
+            url = this.gitServer.getTokenHelpUrl()
           }
           throw new Error(`远程仓库创建失败 请检查传参（${url}）`)
         }
@@ -269,12 +269,12 @@ class Git {
     }
   }
 
-  checkGitIgnore(){
+  checkGitIgnore() {
     //从远程仓库中目录中获取gitIgnore文件
-    const gitIgnore=path.resolve(this.dir,GIT_IGNORE_FILE)
+    const gitIgnore = path.resolve(this.dir, GIT_IGNORE_FILE)
     //不要有空格，否则gitinore文件也会换行
-    if(!fse.existsSync(gitIgnore)){
-      writeFile(gitIgnore,`.DS_Store
+    if (!fse.existsSync(gitIgnore)) {
+      writeFile(gitIgnore, `.DS_Store
 node_modules
 /dist
 
@@ -296,7 +296,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?`)
-log.success(`自动写入${GIT_IGNORE_FILE}文件成功`)
+      log.success(`自动写入${GIT_IGNORE_FILE}文件成功`)
     }
   }
 
@@ -317,32 +317,97 @@ log.success(`自动写入${GIT_IGNORE_FILE}文件成功`)
   }
 
   async init() {
-    if(await this.getRemote()){
+    if (await this.getRemote()) {
       //获取远程仓库  如果已经完成初始化则返回
       return
     }
     await this.initAndRemote()  //对本地仓库初始化并与远程仓库绑定
+    await this.initCommit()   //初始化提交
   }
 
-  getRemote(){
-    const gitPath=path.resolve(this.dir,GIT_ROOT_DIR)
-    this.remote=this.gitServer.getRemote(this.login,this.name)
-    console.log(this.remote,fse.existsSync(gitPath))
-    if(fse.existsSync(gitPath)){
+  getRemote() {
+    const gitPath = path.resolve(this.dir, GIT_ROOT_DIR)
+    this.remote = this.gitServer.getRemote(this.login, this.name)
+    console.log(this.remote, fse.existsSync(gitPath))
+    if (fse.existsSync(gitPath)) {
       log.success('git已完成初始化')
       return true
     }
   }
 
-  async initAndRemote(){
+  async initAndRemote() {
     log.info('git执行初始化')
     await this.git.init(this.dir)
     log.info('添加git remote')
-    const remotes=await this.git.getRemotes()
-    log.verbose('git remotes',remotes)
-    if(!remotes.find(item=>item.name==='origin')){
-      await this.git.addRemote('origin',this.remote)
+    const remotes = await this.git.getRemotes()
+    log.verbose('git remotes', remotes)
+    if (!remotes.find(item => item.name === 'origin')) {
+      await this.git.addRemote('origin', this.remote)
     }
+  }
+
+  async initCommit() {
+    const status = await this.git.status()
+    log.verbose('status', status)
+    await this.checkConflicted(status) //代码冲突检查
+    await this.checkNotCommitted(status)  //代码未提交检查,自动化提交
+    if (await this.checkRemoteMaster()) {  //检查远程是否有master分支
+      await this.pullRemoteRepo('master',{
+        '--allow-unrelated-histories':null  //--allow-unrelated-histories将不相关的代码合并,强制的merge
+      })
+    } else {
+      await this.pushRemoteMaster('master')
+    }
+  }
+
+  async pullRemoteRepo(branchName, options) {
+    try {
+      log.info(`同步远程${branchName}分支代码`)
+      await this.git.pull('origin', branchName, options)
+    } catch (error) {
+      log.error(error.message)
+    }
+  }
+
+  async pushRemoteMaster(branchName) {
+    log.info(`推送代码至${branchName}分支`)
+    await this.git.push('origin', branchName)
+    log.success('推送代码成功')
+  }
+
+  async checkRemoteMaster() {
+    log.info('检查远程master分支是否存在')
+    const remotes = await this.git.listRemote(['--refs'])
+    console.log("remotes", remotes)
+    return remotes.indexOf('refs/heads/master') >= 0
+  }
+  async checkNotCommitted(status) {
+    if (status.not_added.length > 0 || status.created.length > 0
+      || status.deleted.length > 0 || status.modified.length > 0
+      || status.renamed.length > 0) {
+      await this.git.add(status.not_added)
+      await this.git.add(status.created)
+      await this.git.add(status.deleted)
+      await this.git.add(status.modified)
+      await this.git.add(status.renamed)
+      let message;
+      while (!message) {
+        message = (await inquirer.prompt({
+          type: 'text',
+          name: 'message',
+          message: "请输入commit信息"
+        })).message
+      }
+      await this.git.commit(message)
+      log.success('本次commit提交成功')
+    }
+  }
+  async checkConflicted(status) {
+    log.info('代码冲突检查')
+    if (status.conflicted.length > 0) {
+      throw new Error('当前代码存在冲突，请手动处理合并后再试！')
+    }
+    log.success("代码冲突检查通过")
   }
 }
 
