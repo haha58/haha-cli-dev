@@ -52,8 +52,8 @@ const GIT_OWNER_TYPE_ONLY = [
   },
 ];
 
-const VERSION_RELEASE='release'  //线上发布分支
-const VERSION_DEV='dev'  //线上开发分支
+const VERSION_RELEASE = 'release'  //线上发布分支
+const VERSION_DEV = 'dev'  //线上开发分支
 class Git {
   constructor(
     { name, version, dir },
@@ -74,6 +74,7 @@ class Git {
     this.refreshServer = refreshServer; //强制刷新远程仓库类型
     this.refreshToken = refreshToken; //强制刷新远程仓库token
     this.refreshOwner = refreshOwner; //强制刷新远程仓库类型
+    this.branch = null  //本地开发分支
   }
 
   async prepare() {
@@ -355,8 +356,8 @@ pnpm-debug.log*
     await this.checkConflicted(status) //代码冲突检查
     await this.checkNotCommitted(status)  //代码未提交检查,自动化提交
     if (await this.checkRemoteMaster()) {  //检查远程是否有master分支
-      await this.pullRemoteRepo('master',{
-        '--allow-unrelated-histories':null  //--allow-unrelated-histories将不相关的代码合并,强制的merge
+      await this.pullRemoteRepo('master', {
+        '--allow-unrelated-histories': null  //--allow-unrelated-histories将不相关的代码合并,强制的merge
       })
     } else {
       await this.pushRemoteMaster('master')
@@ -412,9 +413,9 @@ pnpm-debug.log*
     log.success("代码冲突检查通过")
   }
 
-  async commit(){
+  async commit() {
     //1.生成开发分支
-      await this.getCorrentVersion()
+    await this.getCorrentVersion()
     //2.在开发分支上提交代码
 
     //3.合并远程开发分支
@@ -422,39 +423,86 @@ pnpm-debug.log*
     //4.推送开发分支
   }
 
-  async getCorrentVersion(){
+  async getCorrentVersion() {
     //1.获取远程开发分支
     //版本号规范：release/x.y.z(线上分支) dev/x.y.z(本地分支)
     //版本号递增规范：major/minor/patch
     log.info('获取远程代码分支')
-    const remoteBranchList=await this.getRemoteBranchList(VERSION_RELEASE)
-    console.log("remoteBranchList",remoteBranchList)
-    let releaseVersion=null
-    if(remoteBranchList&&remoteBranchList.length>0){
-      releaseVersion=remoteBranchList[0]
+    const remoteBranchList = await this.getRemoteBranchList(VERSION_RELEASE)
+    console.log("remoteBranchList", remoteBranchList)
+    let releaseVersion = null
+    if (remoteBranchList && remoteBranchList.length > 0) {
+      releaseVersion = remoteBranchList[0]
     }
-    log.info('线上最新版本号',releaseVersion)
+    log.info('线上最新版本号', releaseVersion)
+    //2.生成本地开发分支
+    const devVersion = this.version
+    if (!releaseVersion) {
+      //最新版本号不存在，生成本地开发分支
+      this.branch = `${VERSION_DEV}/${devVersion}`
+    } else if (semver.gt(this.version, releaseVersion)) {
+      //本地分支大于远程分支，将获取升级后的版本号写入package.json
+      log.info('当前版本大于线上最新版本', `${devVersion}>=${releaseVersion}`)
+      this.branch = `${VERSION_DEV}/${devVersion}`
+    } else {
+      log.info('当前版本小于线上最新版本', `${devVersion}<=${releaseVersion}`)
+      //需要用户选择升级版本号模式
+      const incType = (await inquirer.prompt({
+        type: "list",
+        name: "incType",
+        message: "自动升级版本，请选择升级版本类型",
+        default: 'patch',
+        choices: [{
+          //semver.inc(releaseVersion,'patch') 自动计算升级后版本
+          name: `补底版本（${releaseVersion} -> ${semver.inc(releaseVersion, 'patch')}）`,
+          value: 'patch'
+        },
+        {
+          name: `次要版本（${releaseVersion} -> ${semver.inc(releaseVersion, 'minor')}）`,
+          value: 'minor'
+        },
+        {
+          name: `注意版本（${releaseVersion} -> ${semver.inc(releaseVersion, 'major')}）`,
+          value: 'major'
+        }]
+      })).incType
+      const incVersion = semver.inc(releaseVersion, incType)
+      this.branch = `${VERSION_DEV}/${incVersion}`
+      this.version = incVersion
+    }
+    log.verbose('本地开发分支', this.branch)
+    //3.将version同步到package.json
+    this.syncVersionToPackageJson()
   }
-  async getRemoteBranchList(type){
-    const remotes = await this.git.listRemote(['--refs'])
-    console.log('remotes',remotes,remotes.length)
-    let reg;
-    if(type===VERSION_RELEASE){
-      //refs/tags/release/1.0.0
-      reg=/.+?refs\/tags\/release\/(\d+\.\d+\.\d+)/g
-    }else{
-      
+
+  syncVersionToPackageJson() {
+    const pkg = fse.readJsonSync(`${this.dir}/package.json`)
+    if (pkg && pkg.version !== this.version) {
+      pkg.version = this.version
+      //{ spaces: 2 }使package.json保持两个空格缩进，否则会变成一行
+      fse.writeJSONSync(`${this.dir}/package.json`, pkg, { spaces: 2 })
     }
-    return remotes.split('\n').map(remote=>{
-      const match=reg.exec(remote)
-      reg.lastIndex=0
-      console.log('match',match)
-      if(match&&semver.valid(match[1])){ //match是否存在并是一个版本号
+  }
+  async getRemoteBranchList(type) {
+    const remotes = await this.git.listRemote(['--refs'])
+    console.log('remotes', remotes, remotes.length)
+    let reg;
+    if (type === VERSION_RELEASE) {
+      //refs/tags/release/1.0.0
+      reg = /.+?refs\/tags\/release\/(\d+\.\d+\.\d+)/g
+    } else {
+
+    }
+    return remotes.split('\n').map(remote => {
+      const match = reg.exec(remote)
+      reg.lastIndex = 0
+      console.log('match', match)
+      if (match && semver.valid(match[1])) { //match是否存在并是一个版本号
         return match[1]
       }
-    }).filter(_=>_).sort((a,b)=>{
-      if(semver.lte(b,a)){
-        if(a===b){
+    }).filter(_ => _).sort((a, b) => {
+      if (semver.lte(b, a)) {
+        if (a === b) {
           return 0
         }
         return -1
