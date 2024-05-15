@@ -35,6 +35,7 @@
     "inquirer": "^8.2.4",
     "simple-git": "^3.24.0",
     "terminal-link": "^2.1.1",
-    "user-home": "^3.0.0"
+    "user-home": "^3.0.0",
+    "semver": "^7.3.7"
   }
 }

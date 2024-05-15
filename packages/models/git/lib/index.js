@@ -8,6 +8,7 @@ const inquirer = require('inquirer');
 const { readFile, writeFile, spinnerStart } = require('@haha-cli-dev/utils');
 const fse = require('fs-extra');
 const terminalLink = require('terminal-link'); //在终端生成链接
+const semver = require('semver')
 const Github = require('./Github');
 const Gitee = require('./Gitee');
 
@@ -51,6 +52,8 @@ const GIT_OWNER_TYPE_ONLY = [
   },
 ];
 
+const VERSION_RELEASE='release'  //线上发布分支
+const VERSION_DEV='dev'  //线上开发分支
 class Git {
   constructor(
     { name, version, dir },
@@ -378,7 +381,6 @@ pnpm-debug.log*
   async checkRemoteMaster() {
     log.info('检查远程master分支是否存在')
     const remotes = await this.git.listRemote(['--refs'])
-    console.log("remotes", remotes)
     return remotes.indexOf('refs/heads/master') >= 0
   }
   async checkNotCommitted(status) {
@@ -408,6 +410,43 @@ pnpm-debug.log*
       throw new Error('当前代码存在冲突，请手动处理合并后再试！')
     }
     log.success("代码冲突检查通过")
+  }
+
+  async commit(){
+    //1.生成开发分支
+      await this.getCorrentVersion()
+    //2.在开发分支上提交代码
+
+    //3.合并远程开发分支
+
+    //4.推送开发分支
+  }
+
+  async getCorrentVersion(){
+    //1.获取远程开发分支
+    //版本号规范：release/x.y.z(线上分支) dev/x.y.z(本地分支)
+    //版本号递增规范：major/minor/patch
+    log.info('获取远程代码分支')
+    const remoteBranchList=await this.getRemoteBranchList(VERSION_RELEASE)
+    console.log("remoteBranchList",remoteBranchList)
+  }
+  async getRemoteBranchList(type){
+    const remotes = await this.git.listRemote(['--refs'])
+    console.log('remotes',remotes,remotes.length)
+    let reg;
+    if(type===VERSION_RELEASE){
+      //refs/tags/release/1.0.0
+      reg=/.+?refs\/tags\/release\/(\d+\.\d+\.\d+)/g
+    }else{
+      
+    }
+    return remotes.split('\n').map(remote=>{
+      const match=reg.exec(remote)
+      console.log('match',match)
+      if(match&&semver.valid(match[1])){ //match是否存在并是一个版本号
+        return match[1]
+      }
+    }).filter(_=>_)
   }
 }
 
