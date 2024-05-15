@@ -429,6 +429,11 @@ pnpm-debug.log*
     log.info('获取远程代码分支')
     const remoteBranchList=await this.getRemoteBranchList(VERSION_RELEASE)
     console.log("remoteBranchList",remoteBranchList)
+    let releaseVersion=null
+    if(remoteBranchList&&remoteBranchList.length>0){
+      releaseVersion=remoteBranchList[0]
+    }
+    log.info('线上最新版本号',releaseVersion)
   }
   async getRemoteBranchList(type){
     const remotes = await this.git.listRemote(['--refs'])
@@ -442,11 +447,20 @@ pnpm-debug.log*
     }
     return remotes.split('\n').map(remote=>{
       const match=reg.exec(remote)
+      reg.lastIndex=0
       console.log('match',match)
       if(match&&semver.valid(match[1])){ //match是否存在并是一个版本号
         return match[1]
       }
-    }).filter(_=>_)
+    }).filter(_=>_).sort((a,b)=>{
+      if(semver.lte(b,a)){
+        if(a===b){
+          return 0
+        }
+        return -1
+      }
+      return 1
+    })
   }
 }
 
