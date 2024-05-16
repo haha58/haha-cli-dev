@@ -28,7 +28,6 @@ class publishCommand extends Command {
       const git = new Git(this.projectInfo, this.options); //创建Git实例
       await git.prepare();//自动化提交准备和代码仓库初始化
       await git.commit() //代码自动化提交
-      console.log('tast')
       //3.云构建与云发布
       log.info(
         '本次发布耗时：',
