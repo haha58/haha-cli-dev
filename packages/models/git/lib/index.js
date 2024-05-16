@@ -428,6 +428,7 @@ pnpm-debug.log*
     try {
       const status = await this.git.status();
       log.info('代码冲突检查');
+      console.log('status',status)
       if (status.conflicted.length > 0) {
         throw new Error('当前代码存在冲突，请手动处理合并后再试！');
       }
@@ -438,16 +439,52 @@ pnpm-debug.log*
   }
 
   async commit() {
-    //1.生成开发分支
+    try {
+      //1.生成开发分支
     await this.getCorrentVersion();
     //2.在开发分支上提交代码
     await this.checkStash();
     //3.检查代码冲突
     await this.checkConflicted();
-
-    //4.推送开发分支
+    //4.切换开发分支
+    console.log(this.branch)
+    await this.checkoutBranch(this.branch)
+    //5.合并远程master分支到开发分支代码
+    await this.pullRemoteMasterAndBranch()
+    } catch (error) {
+      console.log('err',error.message)
+    }
   }
 
+  async pullRemoteMasterAndBranch(){
+    log.info(`合并[master]->[${this.branch}]`)
+    await this.pullRemoteRepo('master')
+    log.success('合并master成功')
+    await this.checkConflicted()
+    log.info('检查远程开发分支')
+    const remoteBranchList=await this.getRemoteBranchList()
+    console.log(remoteBranchList)
+    if(remoteBranchList.indexOf(this.version)>=0){
+      log.info(`合并[${this.branch}]->[${this.branch}]`)
+      await this.pullRemoteRepo(this.branch)
+      log.success(`合并远程[${this.branch}]成功`)
+      await this.checkConflicted()
+    }else{
+      log.success(`不存在远程开发分支[${this.branch}]`)
+    }
+  }
+
+  async checkoutBranch(branch){
+    const localBranchList=await this.git.branchLocal()
+    log.verbose("localBranchList",localBranchList)
+    if(localBranchList.all.indexOf(branch)>=0){
+      await this.git.checkout(branch)
+    }else{
+      //相当于 git checkout -b 创建新分支
+      await this.git.checkoutLocalBranch(branch)
+    }
+    log.success(`开发分支切换到${branch}`)
+  }
   //2.1检查缓存区
   async checkStash() {
     log.info('检查stash记录');
@@ -540,13 +577,14 @@ pnpm-debug.log*
       //refs/tags/release/1.0.0
       reg = /.+?refs\/tags\/release\/(\d+\.\d+\.\d+)/g;
     } else {
+         //refs/heads/dev/1.0.0
+         reg = /.+?refs\/heads\/dev\/(\d+\.\d+\.\d+)/g;
     }
     return remotes
       .split('\n')
       .map((remote) => {
         const match = reg.exec(remote);
         reg.lastIndex = 0;
-        console.log('match', match);
         if (match && semver.valid(match[1])) {
           //match是否存在并是一个版本号
           return match[1];
