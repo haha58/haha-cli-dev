@@ -371,7 +371,7 @@ pnpm-debug.log*
         '--allow-unrelated-histories': null, //--allow-unrelated-histories将不相关的代码合并,强制的merge
       });
     } else {
-      await this.pushRemoteMaster('master');
+      await this.pushRemoteRepo('master');
     }
   }
 
@@ -384,7 +384,7 @@ pnpm-debug.log*
     }
   }
 
-  async pushRemoteMaster(branchName) {
+  async pushRemoteRepo(branchName) {
     log.info(`推送代码至${branchName}分支`);
     await this.git.push('origin', branchName);
     log.success('推送代码成功');
@@ -451,6 +451,8 @@ pnpm-debug.log*
     await this.checkoutBranch(this.branch)
     //5.合并远程master分支到开发分支代码
     await this.pullRemoteMasterAndBranch()
+    //6.将开发分支推送到远程仓库
+    await this.pushRemoteRepo(this.branch)
     } catch (error) {
       console.log('err',error.message)
     }
