@@ -120,6 +120,7 @@ function registerCommander() {
     .option('--refreshServer','强制更新远程仓库')
     .option('--refreshToken','强制更新远程仓库token')
     .option('--refreshOwner','强制更新远程仓库类型')
+    .option('--buildCmd [buildCmd]','构建命令')  //<buildCmd> 增加参数
     .action(exec)
 
   //注册debug模式
@@ -168,3 +169,4 @@ process.on('uncaughtException',(error)=>{
   process.exit(1)
 })
 module.exports = core
+  

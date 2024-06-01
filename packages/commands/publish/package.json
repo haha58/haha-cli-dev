@@ -28,6 +28,7 @@
     "@haha-cli-dev/command": "^4.0.0",
     "@haha-cli-dev/log": "^4.0.0",
     "@haha-cli-dev/git": "file:../../models/git",
+    "@haha-cli-dev/utils": "file:../../utils/utils",
     "fs-extra": "^7.0.1"
   },
   "bugs": {

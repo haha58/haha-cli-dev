@@ -12,9 +12,9 @@ class publishCommand extends Command {
   //主要是参数进行处理
   init() {
     this.options = {
-      refreshServer: this._argv[0].refreshServer,
-      refreshToken: this._argv[0].refreshToken,
-      refreshOwner:this._argv[0].refreshOwner,
+      refreshServer: this._cmd.refreshServer,
+      refreshToken: this._cmd.refreshToken,
+      refreshOwner:this._cmd.refreshOwner,
     };
   }
   //执行环境，进行逻辑处理，在trycatch中  --debbug 进行调试
@@ -28,6 +28,7 @@ class publishCommand extends Command {
       const git = new Git(this.projectInfo, this.options); //创建Git实例
       await git.prepare();//自动化提交准备和代码仓库初始化
       await git.commit() //代码自动化提交
+      await git.publish() //代码云构建与云发布
       //3.云构建与云发布
       log.info(
         '本次发布耗时：',

@@ -34,8 +34,8 @@ class Command {
 
   //初始化参数
   checkArgs(argv) {
-    this._argv = argv.slice(0, argv.length - 1)
-    this._cmd=argv[argv.length-1]
+    this._cmd = argv[0];
+    this._argv = argv.slice(0, argv.length - 1);
   }
 
   init() {

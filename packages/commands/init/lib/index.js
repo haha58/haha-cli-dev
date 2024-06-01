@@ -26,7 +26,7 @@ const WHITE_COMMAND = ['npm', 'cnpm', 'yarn']
 
 class initCommand extends Command {
   init() {
-    this.projectName = this._argv[0] || ''
+    this.projectName = this._cmd || ''
   }
 
   /*
