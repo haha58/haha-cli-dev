@@ -611,15 +611,16 @@ pnpm-debug.log*
     const cloudBuild=new CloudBuild(this,{
       buildCmd:this.buildCmd
     })
+    cloudBuild.init()
   }
 
   async preparePublish(){
     if(this.buildCmd){
-      const buildCmdArr=this.buildCmd.slice(' ')
-      if(buildCmdArr[0]!=='npm'||buildCmdArr[0]!=='cnpm'){
-        throw new Error('Build命令非法，必须使用npm或者cnpm')
-      }else{
+      const buildCmdArr=this.buildCmd.split(" ")
+      if(buildCmdArr[0]==='npm'||buildCmdArr[0]==='cnpm'){
         this.buildCmd='npm run build'
+      }else{
+        throw new Error('Build命令非法，必须使用npm或者cnpm')
       }
     }
   }
