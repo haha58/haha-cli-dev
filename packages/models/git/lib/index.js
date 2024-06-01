@@ -4,6 +4,7 @@ const SimpleGit = require('simple-git');
 const path = require('path');
 const userHome = require('user-home');
 const log = require('@haha-cli-dev/log');
+const CloudBuild = require('@haha-cli-dev/cloudbuild');
 const inquirer = require('inquirer');
 const { readFile, writeFile, spinnerStart } = require('@haha-cli-dev/utils');
 const fse = require('fs-extra');
@@ -57,7 +58,7 @@ const VERSION_DEV = 'dev'; //线上开发分支
 class Git {
   constructor(
     { name, version, dir },
-    { refreshServer = false, refreshToken = false, refreshOwner = false }
+    { refreshServer = false, refreshToken = false, refreshOwner = false,buildCmd='' }
   ) {
     this.name = name; //项目名称
     this.version = version; //项目版本
@@ -75,6 +76,7 @@ class Git {
     this.refreshToken = refreshToken; //强制刷新远程仓库token
     this.refreshOwner = refreshOwner; //强制刷新远程仓库类型
     this.branch = null; //本地开发分支
+    this.buildCmd=buildCmd //构建命令
   }
 
   async prepare() {
@@ -602,6 +604,24 @@ pnpm-debug.log*
         }
         return 1;
       });
+  }
+
+  async publish(){
+    await this.preparePublish()
+    const cloudBuild=new CloudBuild(this,{
+      buildCmd:this.buildCmd
+    })
+  }
+
+  async preparePublish(){
+    if(this.buildCmd){
+      const buildCmdArr=this.buildCmd.slice(' ')
+      if(buildCmdArr[0]!=='npm'||buildCmdArr[0]!=='cnpm'){
+        throw new Error('Build命令非法，必须使用npm或者cnpm')
+      }else{
+        this.buildCmd='npm run build'
+      }
+    }
   }
 }
 

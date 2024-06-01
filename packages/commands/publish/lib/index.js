@@ -15,6 +15,7 @@ class publishCommand extends Command {
       refreshServer: this._cmd.refreshServer,
       refreshToken: this._cmd.refreshToken,
       refreshOwner:this._cmd.refreshOwner,
+      buildCmd:this._cmd.buildCmd
     };
   }
   //执行环境，进行逻辑处理，在trycatch中  --debbug 进行调试
