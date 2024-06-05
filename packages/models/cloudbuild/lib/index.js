@@ -16,8 +16,11 @@ class Cloudbuild {
   init(){
     const socket = io(WS_SERVER,{
       query:{
-        
+        repo:this.git.remote
       }
+    });
+    socket.on('connect', () => {
+      console.log('connect!');
     });
   }
 }
