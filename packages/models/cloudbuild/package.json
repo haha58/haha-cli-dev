@@ -21,7 +21,8 @@
     "test": "node ./__tests__/cloudbuild.test.js"
   },
   "dependencies": {
-    "socket.io-client": "^2.0.0"
+    "socket.io-client": "^2.0.0",
+    "@haha-cli-dev/log": "^6.0.0"
   },
   "bugs": {
     "url": "https://github.com/haha58/haha-cli-dev/issues"
