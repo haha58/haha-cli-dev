@@ -449,7 +449,7 @@ pnpm-debug.log*
     //3.检查代码冲突
     await this.checkConflicted();
     //4.切换开发分支
-    console.log(this.branch)
+    console.log('this.branch',this.branch)
     await this.checkoutBranch(this.branch)
     //5.合并远程master分支到开发分支代码
     await this.pullRemoteMasterAndBranch()
@@ -505,12 +505,18 @@ pnpm-debug.log*
     //版本号规范：release/x.y.z(线上分支) dev/x.y.z(本地分支)
     //版本号递增规范：major/minor/patch
     log.info('获取远程代码分支');
-    const remoteBranchList = await this.getRemoteBranchList(VERSION_RELEASE);
-    console.log('remoteBranchList', remoteBranchList);
+    try {
+      const remoteBranchList = await this.getRemoteBranchList(VERSION_RELEASE);
+    } catch (error) {
+      console.log("2",error)
+    }
+   
+
     let releaseVersion = null;
     if (remoteBranchList && remoteBranchList.length > 0) {
       releaseVersion = remoteBranchList[0];
     }
+
     log.info('线上最新版本号', releaseVersion);
     //2.生成本地开发分支
     const devVersion = this.version;
