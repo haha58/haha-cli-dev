@@ -88,7 +88,7 @@ class Cloudbuild {
       this.socket.emit('build')  //触发服务端build事件
       this.socket.on('build',(msg)=>{  //监听服务端build事件
           const parsedMsg=parseMsg(msg)
-          log.success("parsedMsg",parsedMsg)
+          log.success(parsedMsg.action, parsedMsg.payload.message)
         })
         this.socket.on('building',(msg)=>{  //监听building-正在构建的事件
       })
