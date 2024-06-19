@@ -8,7 +8,6 @@ const TIME_OUT = 5 * 60 * 1000
 const WS_SERVER = 'http://127.0.0.1:7001'
 const CONNECT_TIME_OUT = 5 * 1000
 
-let socketId = ''
 function parseMsg(msg) {
   //msg 通过.的形式得到对象
   const action = get(msg, 'data.action')
@@ -34,6 +33,7 @@ class Cloudbuild {
 
   //创建websocket链接
   init() {
+    return new Promise((resolve,reject)=>{
     const socket = io(WS_SERVER, {
       query: {
         repo: this.git.remote,
@@ -51,6 +51,7 @@ class Cloudbuild {
         log.success(parsedMsg.action, parsedMsg.message);
       });
       */
+      resolve()
     });
 
     socket.on('id', msg => {
@@ -75,7 +76,22 @@ class Cloudbuild {
     })
     socket.on('error', () => {
       log.error('error', '云构建出错', err)
+      reject(err)
       disconnect()
+    })
+    this.socket=socket
+  })
+  }
+
+  build(){
+    return new Promise((resolve,reject)=>{
+      this.socket.emit('build')  //触发服务端build事件
+      this.socket.on('build',(msg)=>{  //监听服务端build事件
+          const parsedMsg=parseMsg(msg)
+          log.success("parsedMsg",parsedMsg)
+        })
+        this.socket.on('building',(msg)=>{  //监听building-正在构建的事件
+      })
     })
   }
 }

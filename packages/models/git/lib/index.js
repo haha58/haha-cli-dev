@@ -610,7 +610,8 @@ pnpm-debug.log*
     const cloudBuild=new CloudBuild(this,{
       buildCmd:this.buildCmd
     })
-    cloudBuild.init()
+    await cloudBuild.init()  //异步操作，需要返回promise
+    await cloudBuild.build() 
   }
 
   async preparePublish(){
