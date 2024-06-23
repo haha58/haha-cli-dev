@@ -8,6 +8,8 @@ const TIME_OUT = 5 * 60 * 1000
 const WS_SERVER = 'http://127.0.0.1:7001'
 const CONNECT_TIME_OUT = 5 * 1000
 
+const FAILED_CODE=['prepare failed']
+
 function parseMsg(msg) {
   //msg 通过.的形式得到对象
   const action = get(msg, 'data.action')
@@ -44,6 +46,7 @@ class Cloudbuild {
       }
     });
     socket.on('connect', () => {
+      this.timer && clearTimeout(this.timer)
      /* const id = socket.id;
         socket.on(id, msg => {
         log('#receive,', msg);
@@ -88,7 +91,17 @@ class Cloudbuild {
       this.socket.emit('build')  //触发服务端build事件
       this.socket.on('build',(msg)=>{  //监听服务端build事件
           const parsedMsg=parseMsg(msg)
-          log.success(parsedMsg.action, parsedMsg.payload.message)
+          const action=parsedMsg.action
+          const message=parsedMsg.payload.message;
+          if(FAILED_CODE.indexOf(action)>=0){
+            log.error(action,message)
+            clearTimeout(this.timer)
+            this.socket.disconnect()
+            this.socket.close()
+          }else{
+            log.success(action, message)
+          }
+         
         })
         this.socket.on('building',(msg)=>{  //监听building-正在构建的事件
       })
